@@ -272,6 +272,7 @@ export class AmpStory extends AMP.BaseElement {
     this.element.appendChild(this.systemLayer_.build(this.getPageCount()));
   }
 
+
   /**
    * Builds the hint layer DOM.
    * @private
@@ -399,11 +400,13 @@ export class AmpStory extends AMP.BaseElement {
     this.onResize();
   }
 
+
   /** @private */
   isSwipeLargeEnoughForHint_(deltaX, deltaY) {
     return (Math.sqrt(Math.pow(deltaX, 2) + Math.pow(deltaY, 2))
       >= MIN_SWIPE_FOR_HINT_OVERLAY_PX);
   }
+
 
   /** @private */
   initializeListenersForDev_() {
@@ -415,6 +418,7 @@ export class AmpStory extends AMP.BaseElement {
       this.systemLayer_.logAll(e.detail);
     });
   }
+
 
   /** @private */
   lockBody_() {
@@ -723,6 +727,7 @@ export class AmpStory extends AMP.BaseElement {
           }
         })
         .then(() => this.preloadPagesByDistance_())
+        .then(() => this.maybePreloadBookend_())
         .then(() => this.forceRepaintForSafari_());
   }
 
@@ -847,7 +852,6 @@ export class AmpStory extends AMP.BaseElement {
   }
 
 
-
   /**
    * Handle resize events and set the story's desktop state.
    */
@@ -897,6 +901,8 @@ export class AmpStory extends AMP.BaseElement {
         renderSimpleTemplate(this.win.document, LANDSCAPE_ORIENTATION_WARNING),
         this.element.firstChild);
   }
+
+
   /**
    * Get the URL of the given page's background resource.
    * @param {!Element} pageElement
@@ -1017,6 +1023,7 @@ export class AmpStory extends AMP.BaseElement {
     });
   }
 
+
   /**
    * @return {!Array<!Array<string>>} A 2D array representing lists of pages by
    *     distance.  The outer array index represents the distance from the
@@ -1039,6 +1046,7 @@ export class AmpStory extends AMP.BaseElement {
 
     return pagesByDistance;
   }
+
 
   /**
    * Creates a map of a page and all of the pages reachable from that page, by
@@ -1089,6 +1097,18 @@ export class AmpStory extends AMP.BaseElement {
         });
       });
     });
+  }
+
+
+  /**
+   * Preloads the bookend config if on the last page.
+   * @private
+   */
+  maybePreloadBookend_() {
+    const pageIndex = this.getPageIndex(this.activePage_);
+    if (pageIndex + 1 >= this.getPageCount()) {
+      this.loadBookendConfig_();
+    }
   }
 
 
@@ -1225,6 +1245,7 @@ export class AmpStory extends AMP.BaseElement {
     return this.pages_.length;
   }
 
+
   /**
    * @param {!./amp-story-page.AmpStoryPage} desiredPage
    * @return {number} The index of the page.
@@ -1232,6 +1253,7 @@ export class AmpStory extends AMP.BaseElement {
   getPageIndex(desiredPage) {
     return findIndex(this.pages_, page => page === desiredPage);
   }
+
 
   /**
    * Mutes the audio for the story.
@@ -1242,6 +1264,7 @@ export class AmpStory extends AMP.BaseElement {
     this.toggleMutedAttribute_(true);
   }
 
+
   /**
    * Unmutes the audio for the story.
    * @private
@@ -1250,6 +1273,7 @@ export class AmpStory extends AMP.BaseElement {
     this.audioManager_.unmuteAll();
     this.toggleMutedAttribute_(false);
   }
+
 
   /**
    * Toggles mute or unmute attribute on element.
@@ -1264,6 +1288,7 @@ export class AmpStory extends AMP.BaseElement {
     }
   }
 
+
   /**
    * Marks the story as having audio playing on the active page.
    * @private
@@ -1272,6 +1297,7 @@ export class AmpStory extends AMP.BaseElement {
     this.element.classList.add('audio-playing');
   }
 
+
   /**
    * Marks the story as not having audio playing on the active page.
    * @private
@@ -1279,6 +1305,7 @@ export class AmpStory extends AMP.BaseElement {
   audioStopped_() {
     this.element.classList.remove('audio-playing');
   }
+
 
   /** @private */
   replay_() {
@@ -1291,4 +1318,7 @@ export class AmpStory extends AMP.BaseElement {
   }
 }
 
-AMP.registerElement('amp-story', AmpStory, CSS);
+
+AMP.extension('amp-story', '0.1', AMP => {
+  AMP.registerElement('amp-story', AmpStory, CSS);
+});
