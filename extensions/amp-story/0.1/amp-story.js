@@ -1318,4 +1318,7 @@ export class AmpStory extends AMP.BaseElement {
   }
 }
 
-AMP.registerElement('amp-story', AmpStory, CSS);
+
+AMP.extension('amp-story', '0.1', AMP => {
+  AMP.registerElement('amp-story', AmpStory, CSS);
+});
