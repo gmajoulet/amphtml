@@ -67,6 +67,7 @@ import {getMode} from '../../../src/mode';
 import {getSourceOrigin, parseUrl} from '../../../src/url';
 import {stringHash32} from '../../../src/string';
 import {AmpStoryHint} from './amp-story-hint';
+import {AmpStoryPage} from './amp-story-page';
 import {Gestures} from '../../../src/gesture';
 import {SwipeXYRecognizer} from '../../../src/gesture-recognizers';
 import {dict} from '../../../src/utils/object';
@@ -1370,4 +1371,5 @@ export class AmpStory extends AMP.BaseElement {
 
 AMP.extension('amp-story', '0.1', AMP => {
   AMP.registerElement('amp-story', AmpStory, CSS);
+  AMP.registerElement('amp-story-page', AmpStoryPage);
 });
