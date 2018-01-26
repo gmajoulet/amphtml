@@ -383,7 +383,7 @@ export class AmpStory extends AMP.BaseElement {
       // We do this after navigation, because we do not want to block navigation
       // on an asynchronous call.  Blessing can also fail, so we do not want to
       // risk that either.  Otherwise, this can cause #12966.
-      this.mediaPool_.blessAll();
+      // this.mediaPool_.blessAll();
     });
 
     const gestures = Gestures.get(this.element,

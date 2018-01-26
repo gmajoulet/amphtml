@@ -83,11 +83,16 @@ export class AmpStoryPage extends AMP.BaseElement {
       this.markPageAsLoaded_();
     });
 
+    this.mediaPool_ = null;
+
     /** @private @const {!Promise<!./media-pool.MediaPool>} */
     this.mediaPoolPromise_ = new Promise((resolve, reject) => {
       this.setMediaPool = mediaPool => {
         this.mediaLayoutPromise_
-            .then(() => resolve(mediaPool))
+            .then(() => {
+              this.mediaPool_ = mediaPool;
+              return resolve(mediaPool);
+            })
             .catch(reject);
       };
     });
@@ -581,6 +586,8 @@ export class AmpStoryPage extends AMP.BaseElement {
    * @param {number} direction The direction in which navigation needs to takes place.
    */
   navigateOnTap(direction) {
+    this.mediaPool_.blessAll();
+
     const payload = {direction};
     const eventInit = {bubbles: true};
     dispatchCustom(this.win, this.element, EventType.TAP_NAVIGATION, payload,
