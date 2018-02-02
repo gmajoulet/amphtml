@@ -22,11 +22,24 @@ import {ProgressBar} from './progress-bar';
 import {getMode} from '../../../src/mode';
 import {matches} from '../../../src/dom';
 import {DevelopmentModeLog, DevelopmentModeLogButtonSet} from './development-ui'; // eslint-disable-line max-len
+import {createShadowRoot} from '../../../src/shadow-embed';
+import {CSS} from '../../../build/system-layer-0.1.css';
 
 
+/** @private @const {string} */
 const MUTE_CLASS = 'i-amphtml-story-mute-audio-control';
 
+/** @private @const {string} */
 const UNMUTE_CLASS = 'i-amphtml-story-unmute-audio-control';
+
+/** @private @const {string} */
+const AUDIO_MUTED_ATTRIBUTE = 'muted';
+
+/** @private @const {string} */
+const DESKTOP_ATTRIBUTE = 'desktop';
+
+/** @private @const {string} */
+const DISABLED_ATTRIBUTE = 'disabled';
 
 /** @private @const {!./simple-template.ElementDef} */
 const TEMPLATE = {
@@ -95,17 +108,23 @@ export class SystemLayer {
     /** @private {boolean} */
     this.isBuilt_ = false;
 
-    /** @private {?Element} */
+    /**
+     * Root element containing the shadow DOM.
+     * @private {?Element}
+     */
     this.root_ = null;
+
+    /**
+     * Actual system layer, inside the shadow DOM.
+     * @private {?Element}
+     */
+    this.systemLayerEl_ = null;
 
     /** @private {?Element} */
     this.muteAudioBtn_ = null;
 
     /** @private {?Element} */
     this.unmuteAudioBtn_ = null;
-
-    /** @private {?Element} */
-    this.leftButtonTray_ = null;
 
     /** @private @const {!ProgressBar} */
     this.progressBar_ = ProgressBar.create(win);
@@ -128,13 +147,18 @@ export class SystemLayer {
 
     this.isBuilt_ = true;
 
-    this.root_ = renderAsElement(this.win_.document, TEMPLATE);
+    this.root_ = this.win_.document.createElement('div');
+    const shadowRoot = createShadowRoot(this.root_);
 
-    this.root_.insertBefore(
-        this.progressBar_.build(pageCount), this.root_.lastChild);
+    this.systemLayerEl_ = renderAsElement(this.win_.document, TEMPLATE);
+    this.systemLayerEl_.insertBefore(
+        this.progressBar_.build(pageCount), this.systemLayerEl_.lastChild);
 
-    this.leftButtonTray_ =
-        this.root_.querySelector('.i-amphtml-story-ui-left');
+    const style = this.win_.document.createElement('style');
+    style./*OK*/textContent = CSS;
+
+    shadowRoot.appendChild(style);
+    shadowRoot.appendChild(this.systemLayerEl_);
 
     this.buildForDevelopmentMode_();
 
@@ -151,9 +175,11 @@ export class SystemLayer {
       return;
     }
 
-    this.leftButtonTray_.appendChild(this.developerButtons_.build(
+    const leftButtonTray =
+        this.systemLayerEl_.querySelector('.i-amphtml-story-ui-left');
+    leftButtonTray.appendChild(this.developerButtons_.build(
         this.developerLog_.toggle.bind(this.developerLog_)));
-    this.root_.appendChild(this.developerLog_.build());
+    this.systemLayerEl_.appendChild(this.developerLog_.build());
   }
 
   /**
@@ -161,7 +187,7 @@ export class SystemLayer {
    */
   addEventHandlers_() {
     // TODO(alanorozco): Listen to tap event properly (i.e. fastclick)
-    this.root_.addEventListener('click', e => {
+    this.systemLayerEl_.addEventListener('click', e => {
       const target = dev().assertElement(e.target);
 
       if (matches(target, `.${MUTE_CLASS}, .${MUTE_CLASS} *`)) {
@@ -171,7 +197,6 @@ export class SystemLayer {
       }
     });
   }
-
 
   /**
    * @return {!Element}
@@ -226,6 +251,70 @@ export class SystemLayer {
    */
   updateProgress(pageIndex, progress) {
     this.progressBar_.updateProgress(pageIndex, progress);
+  }
+
+  /**
+   * Toggles disabled attribute on element, which triggers a different UI style.
+   * Used in cases where we can not click on the system layer, like when the
+   * bookend is visible.
+   * @param {boolean} isDisabled
+   * @public
+   */
+  toggleDisabledAttribute(isDisabled) {
+    if (isDisabled) {
+      this.systemLayerEl_.setAttribute(DISABLED_ATTRIBUTE, '');
+      this.systemLayerEl_.setAttribute('aria-hidden', 'true');
+    } else {
+      this.systemLayerEl_.removeAttribute(DISABLED_ATTRIBUTE);
+      this.systemLayerEl_.removeAttribute('aria-hidden');
+    }
+  }
+
+  /**
+   * Toggles mute or unmute attribute on element.
+   * @param {boolean} isMuted
+   * @public
+   */
+  toggleMutedAttribute(isMuted) {
+    if (isMuted) {
+      this.systemLayerEl_.setAttribute(AUDIO_MUTED_ATTRIBUTE, '');
+    } else {
+      this.systemLayerEl_.removeAttribute(AUDIO_MUTED_ATTRIBUTE);
+    }
+  }
+
+  /**
+   * Toggles mute or unmute attribute on element.
+   * @param {boolean} isMuted
+   * @public
+   */
+  toggleDesktopAttribute(isDesktop) {
+    if (isDesktop) {
+      this.systemLayerEl_.setAttribute(DESKTOP_ATTRIBUTE, '');
+    } else {
+      this.systemLayerEl_.removeAttribute(DESKTOP_ATTRIBUTE);
+    }
+  }
+
+  /**
+   * @return {boolean} Whether the story is currently muted.
+   */
+  isMuted() {
+    return this.systemLayerEl_.hasAttribute(AUDIO_MUTED_ATTRIBUTE);
+  }
+
+  /**
+   * Marks the story as having audio playing on the active page.
+   */
+  audioPlaying() {
+    this.systemLayerEl_.classList.add('audio-playing');
+  }
+
+  /**
+   * Marks the story as not having audio playing on the active page.
+   */
+  audioStopped() {
+    this.systemLayerEl_.classList.remove('audio-playing');
   }
 
   /**

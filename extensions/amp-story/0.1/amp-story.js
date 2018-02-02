@@ -112,12 +112,6 @@ const MAX_MEDIA_ELEMENT_COUNTS = {
   [MediaType.VIDEO]: 8,
 };
 
-
-/**
- * @private @const {string}
- */
-const AUDIO_MUTED_ATTRIBUTE = 'muted';
-
 /** @type {string} */
 const TAG = 'amp-story';
 
@@ -296,9 +290,6 @@ export class AmpStory extends AMP.BaseElement {
 
     this.navigationState_.observe(stateChangeEvent =>
       this.variableService_.onStateChange(stateChangeEvent));
-
-    // Mute `amp-story` in beginning.
-    this.mute_();
 
     upgradeBackgroundAudio(this.element);
 
@@ -537,6 +528,7 @@ export class AmpStory extends AMP.BaseElement {
 
     const storyLayoutPromise = this.initializePages_()
         .then(() => this.buildSystemLayer_())
+        .then(() => this.mute_())
         .then(() => this.buildHintLayer_())
         .then(() => this.buildLandscapeOrientationOverlay_())
         .then(() => {
@@ -881,6 +873,7 @@ export class AmpStory extends AMP.BaseElement {
   onResize() {
     if (this.isDesktop_()) {
       this.element.setAttribute('desktop','');
+      this.systemLayer_.toggleDesktopAttribute(true);
       this.element.classList.remove(LANDSCAPE_OVERLAY_CLASS);
       if (!this.topBar_) {
         this.buildTopBar_();
@@ -902,10 +895,12 @@ export class AmpStory extends AMP.BaseElement {
           this.element.classList.toggle(LANDSCAPE_OVERLAY_CLASS,
               state.isLandscape);
           this.element.removeAttribute('desktop');
+          this.systemLayer_.toggleDesktopAttribute(false);
         },
       }, {});
     }
   }
+
 
   /**
    * @return {boolean} True if the screen size matches the desktop media query.
@@ -1010,6 +1005,7 @@ export class AmpStory extends AMP.BaseElement {
       this.toggleElementsOnBookend_(/* display */ false);
 
       this.element.classList.add('i-amphtml-story-bookend-active');
+      this.systemLayer_.toggleDisabledAttribute(true);
 
       this.bookend_.show();
     });
@@ -1030,6 +1026,7 @@ export class AmpStory extends AMP.BaseElement {
     this.toggleElementsOnBookend_(/* display */ true);
 
     this.element.classList.remove('i-amphtml-story-bookend-active');
+    this.systemLayer_.toggleDisabledAttribute(false);
 
     this.bookend_.hide();
   }
@@ -1339,6 +1336,7 @@ export class AmpStory extends AMP.BaseElement {
     this.toggleMutedAttribute_(true);
   }
 
+
   /**
    * Unmutes the audio for the story.
    * @private
@@ -1368,7 +1366,7 @@ export class AmpStory extends AMP.BaseElement {
    * @private
    */
   isMuted_() {
-    return this.element.hasAttribute(AUDIO_MUTED_ATTRIBUTE);
+    return this.systemLayer_.isMuted();
   }
 
 
@@ -1378,11 +1376,7 @@ export class AmpStory extends AMP.BaseElement {
    * @private
    */
   toggleMutedAttribute_(isMuted) {
-    if (isMuted) {
-      this.element.setAttribute(AUDIO_MUTED_ATTRIBUTE, '');
-    } else {
-      this.element.removeAttribute(AUDIO_MUTED_ATTRIBUTE);
-    }
+    this.systemLayer_.toggleMutedAttribute(isMuted);
   }
 
   /**
@@ -1407,7 +1401,7 @@ export class AmpStory extends AMP.BaseElement {
    * @private
    */
   audioPlaying_() {
-    this.element.classList.add('audio-playing');
+    this.systemLayer_.audioPlaying();
   }
 
   /**
@@ -1415,7 +1409,7 @@ export class AmpStory extends AMP.BaseElement {
    * @private
    */
   audioStopped_() {
-    this.element.classList.remove('audio-playing');
+    this.systemLayer_.audioStopped();
   }
 
   /** @private */
