@@ -137,7 +137,7 @@ declareExtension('amp-sidebar', '0.1', {hasCss: true});
 declareExtension('amp-soundcloud', '0.1', {hasCss: false});
 declareExtension('amp-springboard-player', '0.1', {hasCss: false});
 declareExtension('amp-sticky-ad', '1.0', {hasCss: true});
-declareExtension('amp-story', '0.1', {hasCss: true});
+declareExtension('amp-story', '0.1', {hasCss: true, cssBinaries: ['system-layer']});
 declareExtension('amp-selector', '0.1', {hasCss: true});
 declareExtension('amp-web-push', '0.1', {hasCss: true});
 declareExtension('amp-wistia-player', '0.1', {hasCss: false});
