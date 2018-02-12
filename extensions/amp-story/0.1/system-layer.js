@@ -22,10 +22,14 @@ import {dict} from '../../../src/utils/object';
 import {getMode} from '../../../src/mode';
 import {matches} from '../../../src/dom';
 import {renderAsElement} from './simple-template';
+import {createShadowRoot} from '../../../src/shadow-embed';
+import {CSS} from '../../../build/system-layer-0.1.css';
 
 
+/** @private @const {string} */
 const MUTE_CLASS = 'i-amphtml-story-mute-audio-control';
 
+/** @private @const {string} */
 const UNMUTE_CLASS = 'i-amphtml-story-unmute-audio-control';
 
 /** @private @const {!./simple-template.ElementDef} */
@@ -96,8 +100,17 @@ export class SystemLayer {
     /** @private {boolean} */
     this.isBuilt_ = false;
 
-    /** @private {?Element} */
+    /**
+     * Root element containing the shadow DOM.
+     * @private {?Element}
+     */
     this.root_ = null;
+
+    /**
+     * Actual system layer, inside the shadow DOM.
+     * @private {?Element}
+     */
+    this.systemLayerEl_ = null;
 
     /** @private {?Element} */
     this.muteAudioBtn_ = null;
@@ -129,13 +142,18 @@ export class SystemLayer {
 
     this.isBuilt_ = true;
 
-    this.root_ = renderAsElement(this.win_.document, TEMPLATE);
+    this.root_ = this.win_.document.createElement('div');
+    const shadowRoot = createShadowRoot(this.root_);
 
-    this.root_.insertBefore(
-        this.progressBar_.build(pageCount), this.root_.lastChild);
+    this.systemLayerEl_ = renderAsElement(this.win_.document, TEMPLATE);
+    this.systemLayerEl_.insertBefore(
+        this.progressBar_.build(pageCount), this.systemLayerEl_.lastChild);
 
-    this.leftButtonTray_ =
-        this.root_.querySelector('.i-amphtml-story-ui-left');
+    const style = this.win_.document.createElement('style');
+    style./*OK*/textContent = CSS;
+
+    shadowRoot.appendChild(style);
+    shadowRoot.appendChild(this.systemLayerEl_);
 
     this.buildForDevelopmentMode_();
 
@@ -152,9 +170,11 @@ export class SystemLayer {
       return;
     }
 
-    this.leftButtonTray_.appendChild(this.developerButtons_.build(
+    const leftButtonTray_ =
+        this.systemLayerEl_.querySelector('.i-amphtml-story-ui-left');
+    leftButtonTray.appendChild(this.developerButtons_.build(
         this.developerLog_.toggle.bind(this.developerLog_)));
-    this.root_.appendChild(this.developerLog_.build());
+    this.systemLayerEl_.appendChild(this.developerLog_.build());
   }
 
   /**
@@ -162,7 +182,7 @@ export class SystemLayer {
    */
   addEventHandlers_() {
     // TODO(alanorozco): Listen to tap event properly (i.e. fastclick)
-    this.root_.addEventListener('click', e => {
+    this.systemLayerEl_.addEventListener('click', e => {
       const target = dev().assertElement(e.target);
 
       if (matches(target, `.${MUTE_CLASS}, .${MUTE_CLASS} *`)) {
