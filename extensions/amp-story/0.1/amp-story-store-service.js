@@ -155,6 +155,12 @@ export class AmpStoryStoreService {
     });
   }
 
+  register(obj) {
+    Object.keys(obj.watch).forEach(key => {
+      this.subscribe(key, obj.watch[key]);
+    });
+  }
+
   /**
    * Retrieves the default state, that could be overriden by an embed mode.
    * @return {!State}

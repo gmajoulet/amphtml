@@ -244,12 +244,25 @@ export class Bookend {
 
     /** @private @const {!./amp-story-store-service.AmpStoryStoreService} */
     this.storeService_ = Services.storyStoreService(this.win_);
+    this.storeService_.register(this);
 
     /** @private @const {!Element} */
     this.storyElement_ = storyElement;
 
     /** @private @const {!../../../src/service/vsync-impl.Vsync} */
     this.vsync_ = Services.vsyncFor(this.win_);
+  }
+
+  get watch() {
+    return {
+      [StateProperty.BOOKEND_STATE]: isActive => {
+        this.onBookendStateUpdate_(isActive);
+      },
+
+      [StateProperty.DESKTOP_STATE]: isDesktop => {
+        this.onDesktopStateUpdate_(isDesktop);
+      },
+    };
   }
 
   /**
@@ -313,14 +326,6 @@ export class Bookend {
         event.preventDefault();
         this.close_();
       }
-    });
-
-    this.storeService_.subscribe(StateProperty.BOOKEND_STATE, isActive => {
-      this.onBookendStateUpdate_(isActive);
-    });
-
-    this.storeService_.subscribe(StateProperty.DESKTOP_STATE, isDesktop => {
-      this.onDesktopStateUpdate_(isDesktop);
     });
   }
 
