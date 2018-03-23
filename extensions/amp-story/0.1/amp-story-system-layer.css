@@ -28,8 +28,7 @@
   pointer-events: none !important;
 }
 
-.i-amphtml-story-ui-left,
-.i-amphtml-story-ui-right {
+.i-amphtml-story-system-layer-buttons {
   pointer-events: auto !important;
 }
 
@@ -37,7 +36,7 @@
   opacity: 0.3 !important;
 }
 
-.i-amphtml-story-ui-right {
+.i-amphtml-story-system-layer-buttons {
   float: right !important;
 }
 
@@ -118,10 +117,7 @@
 }
 
 .i-amphtml-story-ui-no-buttons .i-amphtml-story-button,
-.i-amphtml-story-ui-no-buttons .i-amphtml-story-ui-left,
-.i-amphtml-story-ui-no-buttons .i-amphtml-story-ui-right,
-[desktop] .i-amphtml-story-ui-no-buttons .i-amphtml-story-ui-left,
-[desktop] .i-amphtml-story-ui-no-buttons .i-amphtml-story-ui-right {
+.i-amphtml-story-ui-no-buttons .i-amphtml-story-system-layer-buttons {
   display: none !important;
 }
 
@@ -141,7 +137,8 @@
   height: 96px!important;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-end;
+  flex-direction: row-reverse;
 }
 
 [desktop] .i-amphtml-story-progress-bar {
@@ -155,26 +152,12 @@
   border-radius: 100px !important;
 }
 
-[desktop].i-amphtml-story-system-layer .i-amphtml-story-ui-right .i-amphtml-story-mute-audio-control,
-[desktop].i-amphtml-story-system-layer .i-amphtml-story-ui-right .i-amphtml-story-unmute-audio-control {
-  display: none!important;
-}
-
-.i-amphtml-story-ui-left {
-  display: none!important;
-}
-
-[desktop].i-amphtml-story-system-layer .i-amphtml-story-ui-left {
+[desktop].i-amphtml-story-system-layer .i-amphtml-story-system-layer-buttons {
   display: flex !important;
   height: 40px !important;
-  flex: 1 !important;
+  width: calc(100vw/3) !important;
   min-width: 200px;
   align-items: center;
   justify-content: flex-end;
   margin-right: 32px;
-}
-
-[desktop].i-amphtml-story-system-layer .i-amphtml-story-ui-right {
-  display: block !important;
-  flex: 1 !important;
 }
