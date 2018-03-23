@@ -1457,25 +1457,16 @@ export class AmpStory extends AMP.BaseElement {
         .then(unmuteAllMedia, unmuteAllMedia);
   }
 
-
   /**
    * Reapplies the muting status for the currently-active media in the story.
+   * @private
    */
   reapplyMuting_() {
-    const isMuted = this.isMuted_();
+    const isMuted = this.storeService_.get(StateProperty.MUTED_STATE);
     if (!isMuted) {
       this.mute_();
       this.unmute_();
     }
-  }
-
-
-  /**
-   * @return {boolean} Whether the story is currently muted.
-   * @private
-   */
-  isMuted_() {
-    return this.storeService_.get(StateProperty.MUTED_STATE);
   }
 
   /**
@@ -1491,7 +1482,7 @@ export class AmpStory extends AMP.BaseElement {
     const hasStoryAudio = this.element.hasAttribute('background-audio');
 
     this.storeService_.dispatch(
-        Action.TOGGLE_HAS_AUDIO, containsMediaElement || hasStoryAudio)
+        Action.TOGGLE_HAS_AUDIO, containsMediaElement || hasStoryAudio);
   }
 
   /** @private */
