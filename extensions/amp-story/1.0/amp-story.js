@@ -853,6 +853,9 @@ export class AmpStory extends AMP.BaseElement {
     const targetPage = this.getPageById(targetPageId);
     const pageIndex = this.getPageIndex(targetPage);
 
+console.time('Next page displayed');
+console.time('Next page playing');
+
     this.storeService_.dispatch(Action.CHANGE_PAGE, {
       id: targetPageId,
       index: pageIndex,
@@ -917,6 +920,14 @@ export class AmpStory extends AMP.BaseElement {
       this.preloadPagesByDistance_();
       this.forceRepaintForSafari_();
       this.maybePreloadBookend_();
+
+      this.win.requestAnimationFrame(() => {
+        console.timeEnd('Next page playing');
+
+        this.win.requestAnimationFrame(() => {
+          console.timeEnd('Next page displayed');
+        });
+      });
     });
   }
 
