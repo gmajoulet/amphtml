@@ -899,10 +899,8 @@ describes.realWin('amp-story', {
     });
   });
 
-  // TODO(gmajoulet): WIP, unskip these tests once the paywall navigation code
-  // is checked in.
   describe('amp-access navigation', () => {
-    it.skip('should set the access state to true if next page blocked', () => {
+    it('should set the access state to true if next page blocked', () => {
       createPages(story.element, 4, ['cover', 'page-1', 'page-2', 'page-3']);
 
       story.buildCallback();
@@ -919,7 +917,7 @@ describes.realWin('amp-story', {
           });
     });
 
-    it.skip('should not navigate if next page is blocked by paywall', () => {
+    it('should not navigate if next page is blocked by paywall', () => {
       createPages(story.element, 4, ['cover', 'page-1', 'page-2', 'page-3']);
 
       story.buildCallback();
@@ -932,6 +930,193 @@ describes.realWin('amp-story', {
           })
           .then(() => {
             expect(story.activePage_.element.id).to.equal('cover');
+          });
+    });
+
+    it('should navigate once the doc is reauthorized', () => {
+      sandbox.stub(win.history, 'replaceState');
+      createPages(story.element, 4, ['cover', 'page-1', 'page-2', 'page-3']);
+
+      let authorizedCallback;
+      const fakeAccessService = {
+        areFirstAuthorizationsCompleted: () => true,
+        onApplyAuthorizations: fn => authorizedCallback = fn,
+      };
+      sandbox.stub(Services, 'accessServiceForDocOrNull')
+          .resolves(fakeAccessService);
+
+      story.buildCallback();
+
+      // Navigates to a paywall protected page, and waits until the document
+      // is successfuly reauthorized to navigate.
+      return story.layoutCallback()
+          .then(() => {
+            story.getPageById('page-1')
+                .element.setAttribute('amp-access-hide', '');
+            return story.switchTo_('page-1');
+          })
+          .then(() => {
+            story.getPageById('page-1')
+                .element.removeAttribute('amp-access-hide');
+            authorizedCallback();
+
+            expect(story.activePage_.element.id).to.equal('page-1');
+          });
+    });
+
+    it('should hide the paywall once the doc is reauthorized', () => {
+      sandbox.stub(win.history, 'replaceState');
+      createPages(story.element, 4, ['cover', 'page-1', 'page-2', 'page-3']);
+
+      let authorizedCallback;
+      const fakeAccessService = {
+        areFirstAuthorizationsCompleted: () => true,
+        onApplyAuthorizations: fn => authorizedCallback = fn,
+      };
+      sandbox.stub(Services, 'accessServiceForDocOrNull')
+          .resolves(fakeAccessService);
+
+      story.buildCallback();
+
+      // Navigates to a paywall protected page, and waits until the document
+      // is successfuly reauthorized to hide the access UI.
+      return story.layoutCallback()
+          .then(() => {
+            story.getPageById('page-1')
+                .element.setAttribute('amp-access-hide', '');
+            return story.switchTo_('page-1');
+          })
+          .then(() => {
+            expect(story.activePage_.element.id).to.equal('cover');
+            story.getPageById('page-1')
+                .element.removeAttribute('amp-access-hide');
+            authorizedCallback();
+
+            expect(story.storeService_.get(StateProperty.ACCESS_STATE))
+                .to.be.false;
+          });
+    });
+
+    it('should not navigate once the doc is reauthorized if still blocked', () => {
+      sandbox.stub(win.history, 'replaceState');
+      createPages(story.element, 4, ['cover', 'page-1', 'page-2', 'page-3']);
+
+      let authorizedCallback;
+      const fakeAccessService = {
+        areFirstAuthorizationsCompleted: () => true,
+        onApplyAuthorizations: fn => authorizedCallback = fn,
+      };
+      sandbox.stub(Services, 'accessServiceForDocOrNull')
+          .resolves(fakeAccessService);
+
+      story.buildCallback();
+
+      // Navigates to a paywall protected page, and does not navigate to that
+      // page if the document has been reauthorized with insuficient rights.
+      return story.layoutCallback()
+          .then(() => {
+            story.getPageById('page-1')
+                .element.setAttribute('amp-access-hide', '');
+            return story.switchTo_('page-1');
+          })
+          .then(() => {
+            authorizedCallback();
+
+            expect(story.activePage_.element.id).to.equal('cover');
+          });
+    });
+
+    it('should not hide the paywall once the doc is reauthorized if still blocked', () => {
+      sandbox.stub(win.history, 'replaceState');
+      createPages(story.element, 4, ['cover', 'page-1', 'page-2', 'page-3']);
+
+      let authorizedCallback;
+      const fakeAccessService = {
+        areFirstAuthorizationsCompleted: () => true,
+        onApplyAuthorizations: fn => authorizedCallback = fn,
+      };
+      sandbox.stub(Services, 'accessServiceForDocOrNull')
+          .resolves(fakeAccessService);
+
+      story.buildCallback();
+
+      // Navigates to a paywall protected page, and does not hide the access UI
+      // if the document has been reauthorized with insuficient rights.
+      return story.layoutCallback()
+          .then(() => {
+            story.getPageById('page-1')
+                .element.setAttribute('amp-access-hide', '');
+            return story.switchTo_('page-1');
+          })
+          .then(() => {
+            authorizedCallback();
+
+            expect(story.storeService_.get(StateProperty.ACCESS_STATE))
+                .to.be.true;
+          });
+    });
+
+    it('should not navigate to a potentially protected page until the doc is authorized', () => {
+      sandbox.stub(win.history, 'replaceState');
+      createPages(story.element, 4, ['cover', 'page-1', 'page-2', 'page-3']);
+
+      const fakeAccessService = {
+        areFirstAuthorizationsCompleted: () => false,
+        onApplyAuthorizations: () => {},
+      };
+      sandbox.stub(Services, 'accessServiceForDocOrNull')
+          .resolves(fakeAccessService);
+
+      story.buildCallback();
+
+      /**
+       * 1. Loading the story
+       * 2. Navigating to the next page does not happen because it is paywall
+       *    protected
+       * 3. Remove the amp-access-hide and trigger the reauthorization callback
+       * 4. Navigation automatically happens
+       */
+      return story.layoutCallback()
+          .then(() => {
+            story.getPageById('page-1')
+                .element.setAttribute('amp-access', 'random condition');
+            return story.switchTo_('page-1');
+          })
+          .then(() => {
+            expect(story.activePage_.element.id).to.equal('cover');
+          });
+    });
+
+    it('should navigate only after the doc is first authorized', () => {
+      sandbox.stub(win.history, 'replaceState');
+      createPages(story.element, 4, ['cover', 'page-1', 'page-2', 'page-3']);
+
+      let authorizedCallback;
+      const fakeAccessService = {
+        areFirstAuthorizationsCompleted: () => false,
+        onApplyAuthorizations: fn => authorizedCallback = fn,
+      };
+      sandbox.stub(Services, 'accessServiceForDocOrNull')
+          .resolves(fakeAccessService);
+
+      story.buildCallback();
+
+      /**
+       * 1. Loading the story
+       * 2. Navigating to the next page does not happen because it is paywall
+       *    protected
+       * 3. Remove the amp-access-hide and trigger the reauthorization callback
+       * 4. Navigation automatically happens
+       */
+      return story.layoutCallback()
+          .then(() => {
+            story.getPageById('page-1')
+                .element.setAttribute('amp-access', 'random condition');
+            return story.switchTo_('page-1');
+          })
+          .then(() => {
+            authorizedCallback();
+            expect(story.activePage_.element.id).to.equal('page-1');
           });
     });
   });
