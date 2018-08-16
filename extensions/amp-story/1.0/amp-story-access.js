@@ -27,6 +27,14 @@ import {throttle} from '../../../src/utils/rate-limit';
 
 
 /**
+ * @enum {string}
+ */
+const Type = {
+  BLOCKING: 'blocking',
+  NOTIFICATION: 'notification',
+};
+
+/**
  * Story access template.
  * @const {!./simple-template.ElementDef}
  */
@@ -83,7 +91,7 @@ export class AmpStoryAccess extends AMP.BaseElement {
 
   /** @override */
   isLayoutSupported(layout) {
-    return layout == Layout.NODISPLAY;
+    return layout == Layout.CONTAINER;
   }
 
   /** @override */
@@ -99,6 +107,13 @@ export class AmpStoryAccess extends AMP.BaseElement {
       this.onAccessStateChange_(isAccess);
     });
 
+    if (this.getType_() === Type.NOTIFICATION) {
+      this.storeService_
+          .subscribe(StateProperty.CURRENT_PAGE_INDEX, currentPageIndex => {
+            this.onCurrentPageIndexChange_(currentPageIndex);
+          }, true /** callToInitialize */);
+    }
+
     this.scrollableEl_ =
         this.element.querySelector('.i-amphtml-story-access-overflow');
     this.scrollableEl_.addEventListener(
@@ -111,9 +126,21 @@ export class AmpStoryAccess extends AMP.BaseElement {
    * @private
    */
   onAccessStateChange_(isAccess) {
-    this.mutateElement(() => {
-      this.element.classList.toggle('i-amphtml-story-access-visible', isAccess);
-    });
+    if (isAccess && this.getType_() === Type.NOTIFICATION) {
+      return this.toggle_(false);
+    }
+
+    this.toggle_(isAccess);
+  }
+
+  /**
+   * Reacts to story active page index update, and maybe display the
+   * "notification" story-access.
+   * @param  {[type]} currentPageIndex [description]
+   * @return {[type]}                  [description]
+   */
+  onCurrentPageIndexChange_(currentPageIndex) {
+    this.toggle_(currentPageIndex === 0);
   }
 
   /**
@@ -137,6 +164,26 @@ export class AmpStoryAccess extends AMP.BaseElement {
   }
 
   /**
+   * @param {boolean} show
+   * @private
+   */
+  toggle_(show) {
+    this.mutateElement(() => {
+      this.element.classList.toggle('i-amphtml-story-access-visible', show);
+    });
+  }
+
+  /**
+   * Whether the element is a blocking paywall and has to be displayed to block
+   * the navigation.
+   * @return {!Type}
+   * @private
+   */
+  getType_() {
+    return this.element.getAttribute('type');
+  }
+
+  /**
    * Whitelists the <amp-access> actions.
    * Depending on the publisher configuration, actions can be:
    *   - login
@@ -150,6 +197,8 @@ export class AmpStoryAccess extends AMP.BaseElement {
    * @private
    */
   whitelistActions_() {
+    this.actions_.addToWhitelist(`AMP-STORY-ACCESS.hide`);
+
     const accessEl =
         dev().assertElement(
             this.win.document.getElementById('amp-access'),

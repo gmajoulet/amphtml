@@ -818,10 +818,6 @@ export class AmpStory extends AMP.BaseElement {
   initializeStoryAccess_() {
     const accessService = Services.accessServiceForDocOrNull(this.getAmpDoc());
 
-    if (!accessService) {
-      return;
-    }
-
     accessService.then(accessService => {
       if (!accessService) {
         return;
@@ -1044,6 +1040,23 @@ export class AmpStory extends AMP.BaseElement {
 
     // Step out if trying to navigate to the currently active page.
     if (this.activePage_ && (this.activePage_.element.id === targetPageId)) {
+      return Promise.resolve();
+    }
+
+    // If the next page might be paywall protected, and the access
+    // authorizations did not resolve yet, wait before navigating.
+    // TODO(gmajoulet): implement a loading state.
+    if (targetPage.element.hasAttribute('amp-access') &&
+        !this.areAccessAuthorizationsCompleted_) {
+      this.navigateToPageAfterAccess_ = targetPage;
+      return Promise.resolve();
+    }
+
+    // If the next page is paywall protected, display the access UI and wait for
+    // the document to be reauthorized.
+    if (targetPage.element.hasAttribute('amp-access-hide')) {
+      this.storeService_.dispatch(Action.TOGGLE_ACCESS, true);
+      this.navigateToPageAfterAccess_ = targetPage;
       return Promise.resolve();
     }
 
