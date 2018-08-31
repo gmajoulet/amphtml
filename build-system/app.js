@@ -922,9 +922,9 @@ app.use('/subscription/:id/entitlements', (req, res) => {
   res.json({
     source: 'local' + req.params.id,
     granted: true,
-    grantedReason: 'NOT_SUBSCRIBED',
+    grantedReason: 'SUBSCRIBER',
     data: {
-      login: true,
+      loggedIn: true,
     },
   });
 });
