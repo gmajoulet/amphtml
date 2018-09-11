@@ -99,7 +99,6 @@ export const StateProperty = {
   CAN_SHOW_SYSTEM_LAYER_BUTTONS: 'canshowsystemlayerbuttons',
 
   // App States.
-  ACCESS_STATE: 'accessstate', // amp-access paywall.
   AD_STATE: 'adstate',
   BOOKEND_STATE: 'bookendstate',
   DESKTOP_STATE: 'desktopstate',
@@ -109,6 +108,7 @@ export const StateProperty = {
   MUTED_STATE: 'mutedstate',
   PAGE_HAS_AUDIO_STATE: 'pageaudiostate',
   PAUSED_STATE: 'pausedstate',
+  PAYWALL_STATE: 'paywallstate',
   RTL_STATE: 'rtlstate',
   SHARE_MENU_STATE: 'sharemenustate',
   SIDEBAR_STATE: 'sidebarstate',
@@ -127,7 +127,6 @@ export const StateProperty = {
 export const Action = {
   CHANGE_PAGE: 'setcurrentpageid',
   SET_CONSENT_ID: 'setconsentid',
-  TOGGLE_ACCESS: 'toggleaccess',
   TOGGLE_AD: 'togglead',
   TOGGLE_BOOKEND: 'togglebookend',
   TOGGLE_INFO_DIALOG: 'toggleinfodialog',
@@ -135,6 +134,7 @@ export const Action = {
   TOGGLE_MUTED: 'togglemuted',
   TOGGLE_PAGE_HAS_AUDIO: 'togglepagehasaudio',
   TOGGLE_PAUSED: 'togglepaused',
+  TOGGLE_PAYWALL: 'togglepaywall',
   TOGGLE_RTL: 'togglertl',
   TOGGLE_SHARE_MENU: 'togglesharemenu',
   TOGGLE_SIDEBAR: 'togglesidebar',
@@ -155,15 +155,15 @@ export const Action = {
 const actions = (state, action, data) => {
   switch (action) {
     // Triggers the amp-acess paywall.
-    case Action.TOGGLE_ACCESS:
-      // Don't change the PAUSED_STATE if ACCESS_STATE is not changed.
-      if (state[StateProperty.ACCESS_STATE] === data) {
+    case Action.TOGGLE_PAYWALL:
+      // Don't change the PAUSED_STATE if PAYWALL_STATE is not changed.
+      if (state[StateProperty.PAYWALL_STATE] === data) {
         return state;
       }
 
       return /** @type {!State} */ (Object.assign(
           {}, state, {
-            [StateProperty.ACCESS_STATE]: !!data,
+            [StateProperty.PAYWALL_STATE]: !!data,
             [StateProperty.PAUSED_STATE]: !!data,
           }));
     // Triggers the ad UI.
@@ -338,7 +338,7 @@ export class AmpStoryStoreService {
       [StateProperty.CAN_SHOW_PREVIOUS_PAGE_HELP]: true,
       [StateProperty.CAN_SHOW_SHARING_UIS]: true,
       [StateProperty.CAN_SHOW_SYSTEM_LAYER_BUTTONS]: true,
-      [StateProperty.ACCESS_STATE]: false,
+      [StateProperty.PAYWALL_STATE]: false,
       [StateProperty.AD_STATE]: false,
       [StateProperty.BOOKEND_STATE]: false,
       [StateProperty.DESKTOP_STATE]: false,

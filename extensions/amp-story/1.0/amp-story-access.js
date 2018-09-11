@@ -118,7 +118,7 @@ export class AmpStoryAccess extends AMP.BaseElement {
 
     this.element.appendChild(drawerEl);
 
-    this.whitelistActions_();
+    // this.whitelistActions_();
 
     this.initializeListeners_();
   }
@@ -132,8 +132,8 @@ export class AmpStoryAccess extends AMP.BaseElement {
    * @private
    */
   initializeListeners_() {
-    this.storeService_.subscribe(StateProperty.ACCESS_STATE, isAccess => {
-      this.onAccessStateChange_(isAccess);
+    this.storeService_.subscribe(StateProperty.PAYWALL_STATE, isPaywall => {
+      this.onPaywallStateChange_(isPaywall);
     });
 
     this.storeService_
@@ -145,13 +145,13 @@ export class AmpStoryAccess extends AMP.BaseElement {
   }
 
   /**
-   * Reacts to access state updates, and shows/hides the UI accordingly.
-   * @param {boolean} isAccess
+   * Reacts to paywall state updates, and shows/hides the UI accordingly.
+   * @param {boolean} isPaywall
    * @private
    */
-  onAccessStateChange_(isAccess) {
+  onPaywallStateChange_(isPaywall) {
     if (this.getType_() === Type.BLOCKING) {
-      this.toggle_(isAccess);
+      this.toggle_(isPaywall);
     }
   }
 
@@ -183,7 +183,7 @@ export class AmpStoryAccess extends AMP.BaseElement {
 
     // Closes the menu if click happened outside of the main container.
     if (!closest(el, el => el === this.containerEl_, this.element)) {
-      this.storeService_.dispatch(Action.TOGGLE_ACCESS, false);
+      this.storeService_.dispatch(Action.TOGGLE_PAYWALL, false);
     }
   }
 

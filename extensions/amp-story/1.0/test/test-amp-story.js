@@ -981,7 +981,7 @@ describes.realWin('amp-story', {
           })
           .then(() => {
             expect(
-                story.storeService_.get(StateProperty.ACCESS_STATE)).to.be.true;
+                story.storeService_.get(StateProperty.PAYWALL_STATE)).to.be.true;
           });
     });
 
@@ -1052,7 +1052,7 @@ describes.realWin('amp-story', {
                 .element.removeAttribute('amp-access-hide');
             authorizedCallback();
 
-            expect(story.storeService_.get(StateProperty.ACCESS_STATE))
+            expect(story.storeService_.get(StateProperty.PAYWALL_STATE))
                 .to.be.false;
           });
     });
@@ -1105,7 +1105,7 @@ describes.realWin('amp-story', {
           .then(() => {
             authorizedCallback();
 
-            expect(story.storeService_.get(StateProperty.ACCESS_STATE))
+            expect(story.storeService_.get(StateProperty.PAYWALL_STATE))
                 .to.be.true;
           });
     });
