@@ -161,16 +161,16 @@ export class AdvancementConfig {
 
   /**
    * Provides an AdvancementConfig object for the specified amp-story-page.
-   * @param {!./amp-story-page.AmpStoryPage} page
+   * @param {!./amp-story-page.AmpStoryPage|!./amp-story.AmpStory} element
    * @return {!AdvancementConfig}
    */
-  static forPage(page) {
-    const rootEl = page.element;
+  static forElement(element) {
+    const rootEl = element.element;
     const win = /** @type {!Window} */ (rootEl.ownerDocument.defaultView);
     const autoAdvanceStr = rootEl.getAttribute('auto-advance-after');
 
     const supportedAdvancementModes = [
-      new ManualAdvancement(rootEl),
+      ManualAdvancement.fromElement(rootEl),
       TimeBasedAdvancement.fromAutoAdvanceString(autoAdvanceStr, win),
       MediaBasedAdvancement.fromAutoAdvanceString(autoAdvanceStr, win, rootEl),
     ].filter(x => x !== null);
@@ -342,6 +342,16 @@ class ManualAdvancement extends AdvancementConfig {
     }, /* opt_stopAt */ this.element_);
   }
 
+  /**
+   * Checks if current element is a descendant of amp-story-page. It will not be
+   * when it's in a shadow root, for example.
+   * @param {!Event} event
+   */
+  isAmpStoryPageDescendant_(event) {
+    return !!closest(dev().assertElement(event.target), el => {
+      return el.localName == 'amp-story-page';
+    });
+  }
 
   /**
    * Performs a system navigation if it is determined that the specified event
@@ -350,7 +360,8 @@ class ManualAdvancement extends AdvancementConfig {
    * @private
    */
   maybePerformNavigation_(event) {
-    if (!this.isNavigationalClick_(event) || this.isProtectedTarget_(event)) {
+    if (!this.isNavigationalClick_(event) || this.isProtectedTarget_(event) ||
+        !this.isAmpStoryPageDescendant_(event)) {
       // If the system doesn't need to handle this click, then we can simply
       // return and let the event propagate as it would have otherwise.
       return;
@@ -389,6 +400,20 @@ class ManualAdvancement extends AdvancementConfig {
     }
 
     return right.direction;
+  }
+
+  /**
+   * Gets an instance of ManualAdvancement based on the HTML tag of the element.
+   * @param {!Element} rootEl
+   * @return {?AdvancementConfig} An AdvancementConfig, only if the rootEl is
+   *                              an amp-story tag.
+   */
+  static fromElement(rootEl) {
+    if (rootEl.tagName.toLowerCase() !== 'amp-story') {
+      return null;
+    }
+
+    return new ManualAdvancement(rootEl);
   }
 }
 

@@ -34,6 +34,7 @@ import {
   getStoreService,
 } from './amp-story-store-service';
 import {ActionTrust} from '../../../src/action-constants';
+import {AdvancementConfig} from './page-advancement';
 import {AmpStoryAccess} from './amp-story-access';
 import {AmpStoryAnalytics} from './analytics';
 import {AmpStoryBackground} from './background';
@@ -193,6 +194,10 @@ export class AmpStory extends AMP.BaseElement {
     /** @private {!NavigationState} */
     this.navigationState_ =
         new NavigationState(this.win, () => this.hasBookend_());
+
+    /** @private @const {!AdvancementConfig} */
+    this.advancement_ = AdvancementConfig.forElement(this);
+    this.advancement_.start();
 
     /** @private {!AmpStoryAnalytics} */
     this.analytics_ = new AmpStoryAnalytics(this.win, this.element);
@@ -516,10 +521,10 @@ export class AmpStory extends AMP.BaseElement {
       }
     });
 
-    this.element.addEventListener(EventType.TAP_NAVIGATION, e => {
-      const direction = getDetail(e)['direction'];
-      this.performTapNavigation_(direction);
-    });
+    this.advancement_.addOnTapNavigationListener(
+        direction => {
+          this.performTapNavigation_(direction);
+        });
 
     this.element.addEventListener(EventType.DISPATCH_ACTION, e => {
       if (!getMode().test) {

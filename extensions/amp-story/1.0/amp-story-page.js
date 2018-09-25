@@ -104,7 +104,7 @@ export class AmpStoryPage extends AMP.BaseElement {
     this.animationManager_ = null;
 
     /** @private @const {!AdvancementConfig} */
-    this.advancement_ = AdvancementConfig.forPage(this);
+    this.advancement_ = AdvancementConfig.forElement(this);
 
     /** @const @private {!function(boolean)} */
     this.debounceToggleLoadingSpinner_ = debounce(
@@ -187,8 +187,6 @@ export class AmpStoryPage extends AMP.BaseElement {
     this.advancement_.addPreviousListener(() => this.previous());
     this.advancement_
         .addAdvanceListener(() => this.next(/* opt_isAutomaticAdvance */ true));
-    this.advancement_.addOnTapNavigationListener(
-        navigationDirection => this.navigateOnTap(navigationDirection));
     this.advancement_
         .addProgressListener(progress => this.emitProgress_(progress));
   }
@@ -729,18 +727,6 @@ export class AmpStoryPage extends AMP.BaseElement {
     }
 
     this.switchTo_(pageId);
-  }
-
-  /**
-   * Delegated the navigation decision to AMP-STORY via event.
-   * @param {number} direction The direction in which navigation needs to
-   * takes place.
-   */
-  navigateOnTap(direction) {
-    const payload = dict({'direction': direction});
-    const eventInit = {bubbles: true};
-    dispatch(this.win, this.element, EventType.TAP_NAVIGATION, payload,
-        eventInit);
   }
 
 
