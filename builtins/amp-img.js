@@ -39,11 +39,14 @@ export class AmpImg extends BaseElement {
     /** @private {boolean} */
     this.allowImgLoadFallback_ = true;
 
+    /** @private {?Element} */
+    this.img_ = null;
+
     /** @private {boolean} */
     this.prerenderAllowed_ = true;
 
-    /** @private {?Element} */
-    this.img_ = null;
+    /** @private {string} */
+    this.srcToRestore_ = null;
 
     /** @private {?UnlistenDef} */
     this.unlistenLoad_ = null;
@@ -152,6 +155,10 @@ export class AmpImg extends BaseElement {
     const img = dev().assertElement(this.img_);
     this.unlistenLoad_ = listen(img, 'load', () => this.hideFallbackImg_());
     this.unlistenError_ = listen(img, 'error', () => this.onImgLoadingError_());
+    if (this.srcToRestore_) {
+      this.img_.src = this.srcToRestore_;
+      this.srcToRestore_ = null;
+    }
     if (this.getLayoutWidth() <= 0) {
       return Promise.resolve();
     }
@@ -168,6 +175,9 @@ export class AmpImg extends BaseElement {
       this.unlistenLoad_();
       this.unlistenLoad_ = null;
     }
+    // iff the image didn't load or error yet
+    this.srcToRestore_ = this.img_.getAttribute('src');
+    this.img_.src = undefined;
     return true;
   }
 
