@@ -265,7 +265,7 @@ export class AmpStory extends AMP.BaseElement {
     this.mediaPool_ = MediaPool.for(this);
 
     /** @private {boolean} */
-    this.arePaywallAuthorizationsCompleted_ = false;
+    this.arePaywallAuthorizationsCompleted_ = true;
 
     /** @private */
     this.navigateToPageAfterPaywall_ = null;
@@ -849,6 +849,17 @@ export class AmpStory extends AMP.BaseElement {
     }
     dev().error(TAG, `amp-consent only allows tags: ${allowedTags}`);
     toRemoveChildren.forEach(el => consentEl.removeChild(el));
+  }
+
+  initializeStorySubscriptions_() {
+    Services.subscriptionsServiceForDocOrNull(this.getAmpDoc()).then(
+        subscriptionsService => {
+      if (!subscriptionsService) {
+        return;
+      }
+
+      this.subscriptionsService_ = subscriptionsService;
+    });
   }
 
   /**

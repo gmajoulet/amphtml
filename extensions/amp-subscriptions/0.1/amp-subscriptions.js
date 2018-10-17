@@ -386,8 +386,21 @@ export class SubscriptionService {
     }
   }
 
+  /**
+   * @public
+   */
+  renderAndOpenDialogForSelectedPlatform() {
+    this.initialize_().then(() => {
+      if (this.doesViewerProvideAuth_ || this.platformConfig_['alwaysGrant']) {
+        return;
+      }
+
+      this.selectAndActivatePlatform_(false /** sendAnalyticsEvents */);
+    });
+  }
+
   /** @private */
-  selectAndActivatePlatform_() {
+  selectAndActivatePlatform_(sendAnalyticsEvents = true) {
     const requireValuesPromise = Promise.all([
       this.platformStore_.getGrantStatus(),
       this.platformStore_.selectPlatform(),
@@ -399,6 +412,11 @@ export class SubscriptionService {
           selectedPlatform.getServiceId());
 
       selectedPlatform.activate(selectedEntitlement);
+
+      if (sendAnalyticsEvents === false) {
+        return;
+      }
+
       this.subscriptionAnalytics_.serviceEvent(
           SubscriptionAnalyticsEvents.PLATFORM_ACTIVATED,
           selectedPlatform.getServiceId());

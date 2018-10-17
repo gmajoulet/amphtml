@@ -27,6 +27,7 @@ import {
   closestByTag,
   copyChildren,
   removeChildren,
+  scopedQuerySelectorAll,
 } from '../../../src/dom';
 import {dev, user} from '../../../src/log';
 import {htmlFor} from '../../../src/static-template';
@@ -54,14 +55,17 @@ export const Type = {
 const getBlockingTemplate = element => {
   return htmlFor(element)`
       <div class="i-amphtml-story-access-overflow">
+      </div>`;
+};
+
+/*
         <div class="i-amphtml-story-access-container">
           <div class="i-amphtml-story-access-header">
             <div class="i-amphtml-story-access-logo"></div>
           </div>
           <div class="i-amphtml-story-access-content"></div>
         </div>
-      </div>`;
-};
+ */
 
 /**
  * Story access notification type template.
@@ -69,16 +73,7 @@ const getBlockingTemplate = element => {
  * @return {!Element}
  */
 const getNotificationTemplate = element => {
-  return htmlFor(element)`
-      <div class="i-amphtml-story-access-overflow">
-        <div class="i-amphtml-story-access-container">
-          <div class="i-amphtml-story-access-content">
-            <span class="i-amphtml-story-access-close-button" role="button">
-              &times;
-            </span>
-          </div>
-        </div>
-      </div>`;
+  return htmlFor(element)`<div></div>`;
 };
 
 /**
@@ -97,6 +92,9 @@ export class AmpStoryAccess extends AMP.BaseElement {
 
     /** @private @const {!./amp-story-store-service.AmpStoryStoreService} */
     this.storeService_ = getStoreService(this.win);
+
+    /** @private {?Object} */
+    this.subscriptionsService_ = null;
   }
 
   /** @override */
@@ -108,17 +106,26 @@ export class AmpStoryAccess extends AMP.BaseElement {
 
     const drawerEl = this.renderDrawerEl_();
 
-    this.containerEl_ = dev().assertElement(
-        drawerEl.querySelector('.i-amphtml-story-access-container'));
-    const contentEl = dev().assertElement(
-        drawerEl.querySelector('.i-amphtml-story-access-content'));
+    // this.containerEl_ = dev().assertElement(
+    //     drawerEl.querySelector('.i-amphtml-story-access-container'));
+    // const contentEl = dev().assertElement(
+    //     drawerEl.querySelector('.i-amphtml-story-access-content'));
 
-    copyChildren(this.element, contentEl);
-    removeChildren(this.element);
+    // copyChildren(this.element, contentEl);
+    // removeChildren(this.element);
 
     this.element.appendChild(drawerEl);
 
     // this.whitelistActions_();
+
+    Services.subscriptionsServiceForDocOrNull(this.getAmpDoc()).then(
+        subscriptionsService => {
+      if (!subscriptionsService) {
+        return;
+      }
+
+      this.subscriptionsService_ = subscriptionsService;
+    });
 
     this.initializeListeners_();
   }
@@ -150,8 +157,31 @@ export class AmpStoryAccess extends AMP.BaseElement {
    * @private
    */
   onPaywallStateChange_(isPaywall) {
+    if (this.getType_() === Type.NOTIFICATION &&
+        this.storeService_.get(StateProperty.CURRENT_PAGE_INDEX) === 0) {
+      const paywallEls =
+          scopedQuerySelectorAll(this.element, 'template[subscriptions-display]');
+
+      Array.prototype.forEach.call(paywallEls, el => {
+        el.removeAttribute('subscriptions-dialog');
+      });
+    }
+
     if (this.getType_() === Type.BLOCKING) {
       this.toggle_(isPaywall);
+
+      const paywallEls =
+          scopedQuerySelectorAll(this.element, 'template[subscriptions-display]');
+
+      Array.prototype.forEach.call(paywallEls, el => {
+        isPaywall ?
+          el.setAttribute('subscriptions-dialog', '') :
+          el.removeAttribute('subscriptions-dialog');
+      });
+
+      isPaywall ?
+        this.subscriptionsService_.renderAndOpenDialogForSelectedPlatform() :
+        this.subscriptionsService_.getDialog().close();
     }
   }
 
@@ -166,6 +196,19 @@ export class AmpStoryAccess extends AMP.BaseElement {
       // Note: this can be overriden by an amp-access attribute that might
       // show/hide the notification based on the user's authorizations.
       this.toggle_(currentPageIndex === 0);
+
+      const paywallEls =
+          scopedQuerySelectorAll(this.element, 'template[subscriptions-display]');
+
+      Array.prototype.forEach.call(paywallEls, el => {
+        currentPageIndex === 0 ?
+          el.setAttribute('subscriptions-dialog', '') :
+          el.removeAttribute('subscriptions-dialog');
+      });
+
+      currentPageIndex === 0 ?
+        this.subscriptionsService_.renderAndOpenDialogForSelectedPlatform() :
+        this.subscriptionsService_.getDialog().close();
     }
   }
 
@@ -219,14 +262,14 @@ export class AmpStoryAccess extends AMP.BaseElement {
       case Type.BLOCKING:
         const drawerEl = getBlockingTemplate(this.element);
 
-        const logoSrc = this.getLogoSrc_();
+        // const logoSrc = this.getLogoSrc_();
 
-        if (logoSrc) {
-          const logoEl =
-              dev().assertElement(
-                  drawerEl.querySelector('.i-amphtml-story-access-logo'));
-          setImportantStyles(logoEl, {'background-image': `url(${logoSrc})`});
-        }
+        // if (logoSrc) {
+        //   const logoEl =
+        //       dev().assertElement(
+        //           drawerEl.querySelector('.i-amphtml-story-access-logo'));
+        //   setImportantStyles(logoEl, {'background-image': `url(${logoSrc})`});
+        // }
 
         return drawerEl;
         break;
