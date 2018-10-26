@@ -776,9 +776,11 @@ export function whenUpgradedToCustomElement(element) {
 /**
  * Replacement for `Element.requestFullscreen()` method.
  * https://developer.mozilla.org/en-US/docs/Web/API/Element/requestFullscreen
+ * https://developer.mozilla.org/en-US/docs/Web/API/FullscreenOptions/navigationUI
  * @param {!Element} element
+ * @param {!Object=} options
  */
-export function fullscreenEnter(element) {
+export function fullscreenEnter(element, options = {}) {
   const requestFs =
     element.requestFullscreen ||
     element.requestFullScreen ||
@@ -787,7 +789,7 @@ export function fullscreenEnter(element) {
     element.msRequestFullscreen ||
     element.mozRequestFullScreen;
   if (requestFs) {
-    requestFs.call(element);
+    requestFs.call(element, options);
   }
 }
 

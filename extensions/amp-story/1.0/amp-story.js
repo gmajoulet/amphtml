@@ -2068,7 +2068,9 @@ export class AmpStory extends AMP.BaseElement {
    * @private
    */
   onFullscreenStateUpdate_(isFullscreen) {
-    isFullscreen ? fullscreenEnter(this.element) : fullscreenExit(this.element);
+    isFullscreen ?
+      fullscreenEnter(this.element, {navigationUI: 'show'}) :
+      fullscreenExit(this.element);
   }
 
   /**
