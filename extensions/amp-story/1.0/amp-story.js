@@ -85,6 +85,9 @@ import {
   childNodes,
   closest,
   createElementWithAttributes,
+  escapeCssSelectorIdent,
+  fullscreenEnter,
+  fullscreenExit,
   isRTL,
   scopedQuerySelectorAll,
   whenUpgradedToCustomElement,
@@ -325,6 +328,9 @@ export class AmpStory extends AMP.BaseElement {
 
     /** @private @const {!../../../src/service/timer-impl.Timer} */
     this.timer_ = Services.timerFor(this.win);
+
+    /** @private {boolean} */
+    this.triedUpgradingToFullscreen_ = false;
 
     /** @private @const {!../../../src/service/platform-impl.Platform} */
     this.platform_ = Services.platformFor(this.win);
@@ -697,11 +703,11 @@ export class AmpStory extends AMP.BaseElement {
       this.onNoNextPage_();
     });
 
-    this.element.addEventListener(EventType.NO_PREVIOUS_PAGE, () => {
-      this.onNoPreviousPage_();
-    });
-
     this.advancement_.addOnTapNavigationListener(direction => {
+      if (!this.triedUpgradingToFullscreen_) {
+        this.storeService_.dispatch(Action.TOGGLE_FULLSCREEN, true);
+        this.triedUpgradingToFullscreen_ = true;
+      }
       this.performTapNavigation_(direction);
     });
 
@@ -737,6 +743,13 @@ export class AmpStory extends AMP.BaseElement {
     this.storeService_.subscribe(StateProperty.CURRENT_PAGE_ID, pageId => {
       this.onCurrentPageIdUpdate_(pageId);
     });
+
+    this.storeService_.subscribe(
+      StateProperty.FULLSCREEN_STATE,
+      isFullscreen => {
+        this.onFullscreenStateUpdate_(isFullscreen);
+      }
+    );
 
     this.storeService_.subscribe(StateProperty.PAUSED_STATE, isPaused => {
       this.onPausedStateUpdate_(isPaused);
@@ -2045,6 +2058,75 @@ export class AmpStory extends AMP.BaseElement {
         });
       }
     }
+  }
+
+  /**
+<<<<<<< HEAD
+=======
+   * Reacts to fullscreen state updates.
+   * @param {boolean} isFullscreen
+   * @private
+   */
+  onFullscreenStateUpdate_(isFullscreen) {
+    isFullscreen ? fullscreenEnter(this.element) : fullscreenExit(this.element);
+  }
+
+  /**
+   * Get the URL of the given page's background resource.
+   * @param {!Element} pageElement
+   * @return {?string} The URL of the background resource
+   */
+  getBackgroundUrl_(pageElement) {
+    let fillElement = pageElement.querySelector(
+      '[template="fill"]:not(.i-amphtml-hidden-by-media-query)'
+    );
+
+    if (!fillElement) {
+      return null;
+    }
+
+    fillElement = dev().assertElement(fillElement);
+
+    const fillPosterElement = fillElement.querySelector(
+      '[poster]:not(.i-amphtml-hidden-by-media-query)'
+    );
+
+    const srcElement = fillElement.querySelector(
+      '[src]:not(.i-amphtml-hidden-by-media-query)'
+    );
+
+    const fillPoster = fillPosterElement
+      ? fillPosterElement.getAttribute('poster')
+      : '';
+    const src = srcElement ? srcElement.getAttribute('src') : '';
+
+    return fillPoster || src;
+  }
+
+  /**
+   * Update the background to the specified page's background.
+   * @param {!Element} pageElement
+   * @param {boolean=} initial
+   */
+  updateBackground_(pageElement, initial = false) {
+    if (!this.background_) {
+      return;
+    }
+
+    this.getVsync().run(
+      {
+        measure: state => {
+          state.url = this.getBackgroundUrl_(pageElement);
+          state.color = computedStyle(this.win, pageElement).getPropertyValue(
+            'background-color'
+          );
+        },
+        mutate: state => {
+          this.background_.setBackground(state.color, state.url, initial);
+        },
+      },
+      {}
+    );
   }
 
   /**

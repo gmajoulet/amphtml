@@ -62,6 +62,9 @@ const HAS_SIDEBAR_ATTRIBUTE = 'i-amphtml-story-has-sidebar';
 const SHARE_CLASS = 'i-amphtml-story-share-control';
 
 /** @private @const {string} */
+const FULLSCREEN_CLASS = 'i-amphtml-story-fullscreen-control';
+
+/** @private @const {string} */
 const INFO_CLASS = 'i-amphtml-story-info-control';
 
 /** @private @const {string} */
@@ -179,6 +182,13 @@ const TEMPLATE = {
           attrs: dict({
             'role': 'button',
             'class': SHARE_CLASS + ' i-amphtml-story-button',
+          }),
+        },
+        {
+          tag: 'div',
+          attrs: dict({
+            'role': 'button',
+            'class': FULLSCREEN_CLASS + ' i-amphtml-story-button',
           }),
         },
         {
@@ -353,6 +363,10 @@ export class SystemLayer {
         this.onInfoClick_();
       } else if (matches(target, `.${SIDEBAR_CLASS}, .${SIDEBAR_CLASS} *`)) {
         this.onSidebarClick_();
+      } else if (
+        matches(target, `.${FULLSCREEN_CLASS}, .${FULLSCREEN_CLASS} *`)
+      ) {
+        this.onFullscreenIconClick_();
       }
     });
 
@@ -706,6 +720,15 @@ export class SystemLayer {
       this.getShadowRoot().setAttribute(HAS_NEW_PAGE_ATTRIBUTE, 'show');
       this.hideMessageAfterTimeout_(HAS_NEW_PAGE_ATTRIBUTE);
     });
+  }
+
+  /**
+   * Handles click events on the fullscreen icon.
+   * @private
+   */
+  onFullscreenIconClick_() {
+    const isFullscreen = this.storeService_.get(StateProperty.FULLSCREEN_STATE);
+    this.storeService_.dispatch(Action.TOGGLE_FULLSCREEN, !isFullscreen);
   }
 
   /**

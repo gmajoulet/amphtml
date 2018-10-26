@@ -88,6 +88,8 @@ export let InteractiveComponentDef;
  *    hasSidebarState: boolean,
  *    infoDialogState: boolean,
  *    interactiveEmbeddedComponentState: !InteractiveComponentDef,
+ *    fullscreenState: boolean,
+ *    landscapeState: boolean,
  *    mutedState: boolean,
  *    pageAudioState: boolean,
  *    pausedState: boolean,
@@ -128,6 +130,8 @@ export const StateProperty = {
   HAS_SIDEBAR_STATE: 'hasSidebarState',
   INFO_DIALOG_STATE: 'infoDialogState',
   INTERACTIVE_COMPONENT_STATE: 'interactiveEmbeddedComponentState',
+  FULLSCREEN_STATE: 'fullscreenState',
+  LANDSCAPE_STATE: 'landscapeState',
   MUTED_STATE: 'mutedState',
   PAGE_HAS_AUDIO_STATE: 'pageAudioState',
   PAUSED_STATE: 'pausedState',
@@ -167,6 +171,8 @@ export const Action = {
   TOGGLE_HAS_SIDEBAR: 'toggleHasSidebar',
   TOGGLE_INFO_DIALOG: 'toggleInfoDialog',
   TOGGLE_INTERACTIVE_COMPONENT: 'toggleInteractiveComponent',
+  TOGGLE_FULLSCREEN: 'toggleFullscreen',
+  TOGGLE_LANDSCAPE: 'toggleLandscape',
   TOGGLE_MUTED: 'toggleMuted',
   TOGGLE_PAGE_HAS_AUDIO: 'togglePageHasAudio',
   TOGGLE_PAUSED: 'togglePaused',
@@ -264,6 +270,14 @@ const actions = (state, action, data) => {
       return /** @type {!State} */ (Object.assign({}, state, {
         [StateProperty.INFO_DIALOG_STATE]: !!data,
         [StateProperty.PAUSED_STATE]: !!data,
+      }));
+      return /** @type {!State} */ (Object.assign({}, state, {
+        [StateProperty.INFO_DIALOG_STATE]: !!data,
+        [StateProperty.PAUSED_STATE]: !!data,
+      }));
+    case Action.TOGGLE_FULLSCREEN:
+      return /** @type {!State} */ (Object.assign({}, state, {
+        [StateProperty.FULLSCREEN_STATE]: !!data,
       }));
     // Shows or hides the audio controls.
     case Action.TOGGLE_STORY_HAS_AUDIO:
@@ -461,6 +475,8 @@ export class AmpStoryStoreService {
       [StateProperty.INTERACTIVE_COMPONENT_STATE]: {
         state: EmbeddedComponentState.HIDDEN,
       },
+      [StateProperty.FULLSCREEN_STATE]: false,
+      [StateProperty.LANDSCAPE_STATE]: false,
       [StateProperty.MUTED_STATE]: true,
       [StateProperty.PAGE_HAS_AUDIO_STATE]: false,
       [StateProperty.PAUSED_STATE]: false,
