@@ -628,16 +628,22 @@ export class AmpStory extends AMP.BaseElement {
   /** @private */
   lockBody_() {
     const {document} = this.win;
-    // setImportantStyles(document.documentElement, {
-    //   'overflow': 'hidden',
-    // });
-    // setImportantStyles(document.body, {
-    //   'overflow': 'hidden',
-    // });
+    setImportantStyles(document.documentElement, {
+      'overflow': 'hidden',
+    });
+    setImportantStyles(document.body, {
+      'overflow': 'hidden',
+    });
 
     this.getViewport().resetTouchZoom();
     this.getViewport().disableTouchZoom();
     this.maybeLockScreenOrientation_();
+  }
+
+  /** @private */
+  unlockBody_() {
+    resetStyles(document.documentElement, ['overflow']);
+    resetStyles(document.body, ['overflow']);
   }
 
   /** @private */
@@ -1311,18 +1317,25 @@ export class AmpStory extends AMP.BaseElement {
    * @private
    */
   onUIStateUpdate_(uiState) {
+    const storyPages = document.querySelectorAll('amp-story-page');
+
     this.vsync_.mutate(() => {
       this.element.removeAttribute('desktop');
       this.element.removeAttribute('scroll');
+      for (let storyPage of storyPages) {
+        resetStyles(storyPage, ['z-index']);
+      }
     });
 
     switch (uiState) {
       case UIType.MOBILE:
+        this.lockBody_();
         // Preloads and prerenders the share menu as the share button gets
         // visible on the mobile UI. No-op if already built.
         this.shareMenu_.build();
         break;
       case UIType.DESKTOP:
+        this.lockBody_();
         this.setDesktopPositionAttributes_(this.activePage_);
         this.vsync_.mutate(() => {
           this.element.setAttribute('desktop', '');
@@ -1336,9 +1349,8 @@ export class AmpStory extends AMP.BaseElement {
         }
         break;
       case UIType.SCROLL:
-        const storyPages = document.querySelectorAll('amp-story-page');
+        this.unlockBody_();
 
-        // resetStyles(el, ['z-index']);
         this.vsync_.mutate(() => {
           this.element.setAttribute('scroll', '');
           let index = storyPages.length;
