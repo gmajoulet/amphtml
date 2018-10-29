@@ -346,7 +346,7 @@ export class AmpStory extends AMP.BaseElement {
 
     if (this.isDesktop_()) {
       const uiState =
-          isExperimentOn(this.win, 'amp-story-scroll') ?
+          !isExperimentOn(this.win, 'amp-story-scroll') ?
             UIType.SCROLL : UIType.DESKTOP;
       this.storeService_.dispatch(Action.TOGGLE_UI, uiState);
     }
@@ -628,12 +628,12 @@ export class AmpStory extends AMP.BaseElement {
   /** @private */
   lockBody_() {
     const {document} = this.win;
-    setImportantStyles(document.documentElement, {
-      'overflow': 'hidden',
-    });
-    setImportantStyles(document.body, {
-      'overflow': 'hidden',
-    });
+    // setImportantStyles(document.documentElement, {
+    //   'overflow': 'hidden',
+    // });
+    // setImportantStyles(document.body, {
+    //   'overflow': 'hidden',
+    // });
 
     this.getViewport().resetTouchZoom();
     this.getViewport().disableTouchZoom();
@@ -1258,7 +1258,7 @@ export class AmpStory extends AMP.BaseElement {
     let uiState = UIType.MOBILE;
 
     if (this.isDesktop_()) {
-      uiState = isExperimentOn(this.win, 'amp-story-scroll') ?
+      uiState = !isExperimentOn(this.win, 'amp-story-scroll') ?
         UIType.SCROLL : UIType.DESKTOP;
     }
 
@@ -1336,8 +1336,16 @@ export class AmpStory extends AMP.BaseElement {
         }
         break;
       case UIType.SCROLL:
+        const storyPages = document.querySelectorAll('amp-story-page');
+
+        // resetStyles(el, ['z-index']);
         this.vsync_.mutate(() => {
           this.element.setAttribute('scroll', '');
+          let index = storyPages.length;
+          for (let storyPage of storyPages) {
+            setImportantStyles(storyPage, {'z-index': index});
+            index--;
+          }
         });
         break;
     }

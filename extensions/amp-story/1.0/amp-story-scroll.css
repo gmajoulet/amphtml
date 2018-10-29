@@ -15,14 +15,74 @@
  */
 
 amp-story[scroll] {
-  overflow-y: auto !important;
+  contain: initial !important;
+  overflow: initial !important;
 }
 
-[scroll] amp-story-page {
+[scroll] amp-story-page.i-amphtml-element {
   position: relative !important;
   height: 100vh !important;
+  width: 100% !important;
+  contain: none !important;
+  overflow: initial !important; /** Overrides overflow hidden. */
+  transform: none !important; /** Overrides translateY. */
 }
 
-[scroll] amp-story-page[distance] {
-  transform: none !important;
+/**
+ * Only the first slide has its height equals to the viewport height.
+ * The following slides are twice higher with a negative margin-top
+ * so they can be overlapped by the previous slide.
+ * The z-index for each slide is set in Javascript. Each slide has
+ * a z-index superior to the following one.
+ */
+[scroll] amp-story-page.i-amphtml-element + amp-story-page.i-amphtml-element {
+  height: 220vh !important;
+  margin-top: -100vh !important;
+}
+
+[scroll] amp-story-page amp-story-grid-layer {
+  position: sticky !important;
+  height: 100vh !important;
+  top: 0 !important;
+  overflow: hidden !important;
+}
+
+[scroll] amp-story-page amp-story-grid-layer:nth-child(2) {
+  margin-top: -100vh;
+}
+
+[scroll] amp-story-page amp-story-grid-layer:nth-child(3) {
+  margin-top: -200vh;
+}
+
+[scroll] amp-story-page amp-story-grid-layer:nth-child(4) {
+  margin-top: -300vh;
+}
+
+[scroll] amp-story-page amp-story-grid-layer:nth-child(5) {
+  margin-top: -400vh;
+}
+
+[scroll] amp-story-page amp-story-grid-layer:nth-child(6) {
+  margin-top: -500vh;
+}
+
+[scroll] amp-story-page amp-story-grid-layer:nth-child(7) {
+  margin-top: -600vh;
+}
+
+[scroll] amp-story-page amp-story-grid-layer:nth-child(8) {
+  margin-top: -700vh;
+}
+
+[scroll] amp-story-page amp-story-grid-layer:nth-child(9) {
+  margin-top: -800vh;
+}
+
+[scroll] amp-story-page amp-story-grid-layer:nth-child(10) {
+  margin-top: -900vh;
+}
+
+[scroll] amp-story-page .i-amphtml-story-grid-template-fill amp-video video {
+  object-fit: contain !important;
 }
