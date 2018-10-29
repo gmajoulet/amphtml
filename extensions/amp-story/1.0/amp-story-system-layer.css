@@ -32,6 +32,10 @@
   font-family: 'Roboto', sans-serif !important;
 }
 
+[scroll].i-amphtml-story-system-layer {
+  position: fixed !important;
+}
+
 .i-amphtml-story-bookend-active.i-amphtml-story-system-layer {
   opacity: 0.3 !important;
   transition: opacity 0.15s cubic-bezier(0.4, 0.0, 1, 1) !important;
