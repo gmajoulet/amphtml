@@ -1130,6 +1130,10 @@ export class AmpStory extends AMP.BaseElement {
    * @private
    */
   observeElements_() {
+    if (!this.activePage_) {
+      return;
+    }
+
     this.observedElements_
         .forEach(el => this.intersectionObserver_.unobserve(el));
 
@@ -1380,6 +1384,7 @@ export class AmpStory extends AMP.BaseElement {
         // Preloads and prerenders the share menu as the share button gets
         // visible on the mobile UI. No-op if already built.
         this.shareMenu_.build();
+        this.intersectionObserver_.disconnect();
         break;
       case UIType.DESKTOP:
         this.lockBody_();
@@ -1394,6 +1399,7 @@ export class AmpStory extends AMP.BaseElement {
         if (this.activePage_) {
           this.updateBackground_(this.activePage_.element, /* initial */ true);
         }
+        this.intersectionObserver_.disconnect();
         break;
       case UIType.SCROLL:
         this.unlockBody_();
@@ -1405,6 +1411,7 @@ export class AmpStory extends AMP.BaseElement {
             setImportantStyles(storyPage, {'z-index': index});
             index--;
           }
+          this.observeElements_();
         });
         break;
     }
