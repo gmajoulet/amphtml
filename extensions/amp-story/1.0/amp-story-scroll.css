@@ -82,7 +82,3 @@ amp-story[scroll] {
 [scroll] amp-story-page amp-story-grid-layer:nth-child(10) {
   margin-top: -900vh;
 }
-
-[scroll] amp-story-page .i-amphtml-story-grid-template-fill amp-video video {
-  object-fit: contain !important;
-}

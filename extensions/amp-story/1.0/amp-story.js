@@ -264,6 +264,13 @@ export class AmpStory extends AMP.BaseElement {
     /** @private {!MediaPool} */
     this.mediaPool_ = MediaPool.for(this);
 
+    /** @private {!Array<!Element>} */
+    this.observedElements_ = [];
+
+    this.intersectionObserver_ =
+        new this.win.IntersectionObserver(
+            entries => this.onIntersection_(entries), {threshold: [0.2]})
+
     /** @private {boolean} */
     this.areAccessAuthorizationsCompleted_ = false;
 
@@ -986,6 +993,10 @@ export class AmpStory extends AMP.BaseElement {
     const oldPage = this.activePage_;
     this.activePage_ = targetPage;
 
+    if (this.storeService_.get(StateProperty.UI_STATE) === UIType.SCROLL) {
+      this.observeElements_();
+    }
+
     // Each step will run in a requestAnimationFrame, and wait for the next
     // frame before executing the following step.
     const steps = [
@@ -1095,6 +1106,42 @@ export class AmpStory extends AMP.BaseElement {
         unqueueStepInRAF();
       });
     });
+  }
+
+  /**
+   * @param {!Array<!IntersectionObserverEntry>} entries
+   * @private
+   */
+  onIntersection_(entries) {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting &&
+          entry.target.id === this.activePage_.element.id) {
+        this.next_();
+      }
+
+      if (entry.isIntersecting &&
+          entry.target.id === this.activePage_.getPreviousPageId()) {
+        this.previous_();
+      }
+    });
+  }
+
+  /**
+   * @private
+   */
+  observeElements_() {
+    this.observedElements_
+        .forEach(el => this.intersectionObserver_.unobserve(el));
+
+    const previousPageId = this.activePage_.getPreviousPageId();
+    if (previousPageId) {
+      const previousPageEl = this.getPageById(previousPageId).element;
+      this.intersectionObserver_.observe(previousPageEl);
+      this.observedElements_.push(previousPageEl);
+    }
+
+    this.intersectionObserver_.observe(this.activePage_.element);
+    this.observedElements_.push(this.activePage_.element);
   }
 
   /**
