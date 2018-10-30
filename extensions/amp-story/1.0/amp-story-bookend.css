@@ -335,6 +335,10 @@
   padding-right: 16px !important;
 }
 
+[scroll].i-amphtml-story-bookend {
+  display: none !important;
+}
+
 [desktop].i-amphtml-story-bookend {
   transition: opacity 0.3s cubic-bezier(0.0, 0.0, 0.2, 1) !important;
   transform: translateY(0) !important;
