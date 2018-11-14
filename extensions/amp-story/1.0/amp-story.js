@@ -1058,6 +1058,8 @@ export class AmpStory extends AMP.BaseElement {
         if (!this.storeService_.get(StateProperty.MUTED_STATE)) {
           oldPage && oldPage.muteAllMedia();
           this.activePage_.unmuteAllMedia();
+        } else {
+          this.activePage_.muteAllMedia();
         }
 
         this.updateBackground_(targetPage.element, /* initial */ !oldPage);
