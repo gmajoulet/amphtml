@@ -339,8 +339,9 @@ export class AmpStoryPage extends AMP.BaseElement {
         switch (mediaEl.tagName.toLowerCase()) {
           case 'amp-img':
           case 'amp-anim':
-            mediaEl.signals().whenSignal(CommonSignals.LOAD_END)
-                .then(resolve, resolve);
+            // mediaEl.signals().whenSignal(CommonSignals.LOAD_END)
+            //     .then(resolve, resolve);
+            resolve();
             break;
           case 'amp-audio':
           case 'amp-video':

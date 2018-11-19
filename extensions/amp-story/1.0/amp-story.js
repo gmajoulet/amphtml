@@ -1227,6 +1227,7 @@ export class AmpStory extends AMP.BaseElement {
    * @private
    */
   setHistoryStatePageId_(pageId) {
+    return;
     // Never save ad pages to history as they are unique to each visit.
     const page = this.getPageById(pageId);
     if (page.isAd()) {
@@ -1246,6 +1247,7 @@ export class AmpStory extends AMP.BaseElement {
    * @return {?string}
    */
   getHistoryStatePageId_() {
+    return null;
     const state = getState(this.win.history);
     return state ? state.ampStoryPageId : null;
   }

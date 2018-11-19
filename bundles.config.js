@@ -281,6 +281,12 @@ exports.extensionBundles = [
     type: TYPES.MISC,
   },
   {
+    name: 'amp-next-story',
+    version: '0.1',
+    options: {hasCss: true},
+    type: TYPES.MISC,
+  },
+  {
     name: 'amp-story-auto-ads',
     version: '0.1',
     options: {hasCss: true},
