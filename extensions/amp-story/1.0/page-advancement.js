@@ -339,10 +339,11 @@ class ManualAdvancement extends AdvancementConfig {
    */
   onTouchstart_(event) {
     // Don't start the paused state if the target is not a descendant of an
-    // amp-story-page. Also ignores any subsequent touchstart that would happen
-    // before touchend was fired, since it'd reset the touchstartTimestamp (ie:
-    // user touches the screen with a second finger).
-    if (this.touchstartTimestamp_ || !this.isAmpStoryPageDescendant_(event)) {
+    // amp-story-grid-layer. Also ignores any subsequent touchstart that would
+    // happen before touchend was fired, since it'd reset the
+    // touchstartTimestamp (ie: user touches the screen with a second finger).
+    if (this.touchstartTimestamp_ ||
+        !this.isAmpStoryGridLayerDescendant_(event)) {
       return;
     }
 
@@ -413,13 +414,13 @@ class ManualAdvancement extends AdvancementConfig {
 
 
   /**
-   * Checks if current element is a descendant of amp-story-page. It will not be
-   * when it's in a shadow root, for example.
+   * Checks if current element is a descendant of amp-story-grid-layer. It will
+   * not be when it's in a shadow root, or outside of a story-page, for example.
    * @param {!Event} event
    */
-  isAmpStoryPageDescendant_(event) {
+  isAmpStoryGridLayerDescendant_(event) {
     return !!closest(dev().assertElement(event.target), el => {
-      return el.tagName.toLowerCase() == 'amp-story-page';
+      return el.tagName.toLowerCase() == 'amp-story-grid-layer';
     });
   }
 
@@ -461,7 +462,7 @@ class ManualAdvancement extends AdvancementConfig {
     if (!this.isRunning() ||
       !this.isNavigationalClick_(event) ||
       this.isProtectedTarget_(event) ||
-      !this.isAmpStoryPageDescendant_(event)) {
+      !this.isAmpStoryGridLayerDescendant_(event)) {
       // If the system doesn't need to handle this click, then we can simply
       // return and let the event propagate as it would have otherwise.
       return;
