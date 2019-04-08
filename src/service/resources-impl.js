@@ -18,12 +18,18 @@ import {CommonSignals} from '../common-signals';
 import {FiniteStateMachine} from '../finite-state-machine';
 import {FocusHistory} from '../focus-history';
 import {Pass} from '../pass';
+import {PrerenderMode} from '../prerender-mode';
 import {Resource, ResourceState} from './resource';
 import {Services} from '../services';
 import {TaskQueue} from './task-queue';
 import {VisibilityState} from '../visibility-state';
 import {areMarginsChanged, expandLayoutRect} from '../layout-rect';
-import {closest, hasNextNodeInDocumentOrder} from '../dom';
+import {
+  closest,
+  hasNextNodeInDocumentOrder,
+  isAmpElement,
+  whenUpgradedToCustomElement,
+} from '../dom';
 import {computedStyle} from '../style';
 import {dev, devAssert} from '../log';
 import {dict, hasOwn} from '../utils/object';
@@ -49,6 +55,8 @@ const POST_TASK_PASS_DELAY_ = 1000;
 const MUTATE_DEFER_DELAY_ = 500;
 const FOCUS_HISTORY_TIMEOUT_ = 1000 * 60; // 1min
 const FOUR_FRAME_DELAY_ = 70;
+const MAX_BUILDS_IN_PRERENDER = 20;
+let DISCOVERED_ELEMENTS_TO_PRERENDER = 0;
 
 
 /**
@@ -217,6 +225,9 @@ export class Resources {
 
     /** @const @private {!Array<function()>} */
     this.passCallbacks_ = [];
+
+    /** @private {?TreeWalker} */
+    this.dfsPrerenderTreeWalker_ = null;
 
     /** @private @const {!FiniteStateMachine<!VisibilityState>} */
     this.visibilityStateMachine_ = new FiniteStateMachine(
@@ -542,7 +553,8 @@ export class Resources {
     // Most documents have 10 or less AMP tags. By building 20 we should not
     // change the behavior for the vast majority of docs, and almost always
     // catch everything in the first viewport.
-    return this.buildAttemptsCount_++ < 20 || this.viewer_.hasBeenVisible();
+    return this.buildAttemptsCount_++ < MAX_BUILDS_IN_PRERENDER ||
+        this.viewer_.hasBeenVisible();
   }
 
   /**
@@ -560,11 +572,17 @@ export class Resources {
     // During prerender mode, don't build elements that aren't allowed to be
     // prerendered. This avoids wasting our prerender build quota.
     // See grantBuildPermission() for more details.
-    const shouldBuildResource =
-        this.viewer_.getVisibilityState() != VisibilityState.PRERENDER
-        || resource.prerenderAllowed();
+    const isPrerendering =
+        this.viewer_.getVisibilityState() === VisibilityState.PRERENDER;
+    const shouldBuildResource = !isPrerendering || resource.prerenderAllowed();
 
     if (buildingEnabled && shouldBuildResource) {
+      console.log('documentReady', this.documentReady_);
+      if (isPrerendering) {
+        this.dfsPrerender_();
+        return;
+      }
+
       if (this.documentReady_) {
         // Build resource immediately, the document has already been parsed.
         this.buildResourceUnsafe_(resource, scheduleWhenBuilt);
@@ -575,6 +593,43 @@ export class Resources {
           this.buildReadyResources_(scheduleWhenBuilt);
         }
       }
+    }
+  }
+
+  /**
+   * Builds resources during prerender in the document order. Ignores children
+   * of a resource that does not allow prerendering.
+   * @private
+   */
+  dfsPrerender_() {
+    if (!this.dfsPrerenderTreeWalker_) {
+      this.dfsPrerenderTreeWalker_ = this.win.document.createTreeWalker(
+          this.ampdoc.getBody(), NodeFilter.SHOW_ELEMENT, undefined, false);
+    }
+
+    while (DISCOVERED_ELEMENTS_TO_PRERENDER < MAX_BUILDS_IN_PRERENDER &&
+        this.dfsPrerenderTreeWalker_.nextNode()) {
+      const node = this.dfsPrerenderTreeWalker_.currentNode;
+      if (!isAmpElement(node)) {
+        continue;
+      }
+
+      DISCOVERED_ELEMENTS_TO_PRERENDER++;
+
+      whenUpgradedToCustomElement(node)
+          .then(() => node.whenUpgradeCompleted())
+          .then(() => {
+            const r = Resource.forElement(node);
+            console.log(r.debugid, r.prerenderAllowed());
+            if (!r.prerenderAllowed()) {
+              DISCOVERED_ELEMENTS_TO_PRERENDER--;
+              this.dfsPrerender_();
+              return;
+            }
+            if (!r.isBuilt() && !r.isBuilding()) {
+              this.buildResourceUnsafe_(r, false);
+            }
+          });
     }
   }
 

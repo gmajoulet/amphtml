@@ -16,6 +16,7 @@
 
 import {AmpDocSingle} from '../../src/service/ampdoc-impl';
 import {LayoutPriority} from '../../src/layout';
+import {PrerenderMode} from '../../src/prerender-mode';
 import {Resource, ResourceState} from '../../src/service/resource';
 import {Resources} from '../../src/service/resources-impl';
 import {Services} from '../../src/services';
@@ -3124,5 +3125,96 @@ describes.fakeWin('Resources.add/upgrade/remove', {amp: true}, env => {
       expect(scheduleBuildStub).to.be.calledOnce;
       expect(resource.isMeasureRequested()).to.be.false;
     });
+  });
+});
+
+describes.fakeWin('Resources prerenderMode DFS', {amp: true}, env => {
+  let resources;
+  let parent;
+  let child1;
+  let child2;
+  let child3;
+
+  function createElement() {
+    const element = env.createAmpElement('amp-test');
+    element.isBuilt = () => false;
+    element.isUpgraded = () => true;
+    element.prerenderAllowed = () => true;
+    element.build = sandbox.stub().returns(Promise.resolve());
+    return element;
+  }
+
+  function createElementWithResource(id) {
+    const element = createElement();
+    const resource = new Resource(id, element, resources);
+    resource.state_ = ResourceState.NOT_BUILT;
+    resource.element['__AMP__RESOURCE'] = resource;
+    return [element, resource];
+  }
+
+  beforeEach(() => {
+    resources = new Resources(env.ampdoc);
+    resources.isBuildOn_ = true;
+    resources.documentReady_ = true;
+
+    sandbox.stub(resources.viewer_, 'getVisibilityState')
+        .returns(VisibilityState.PRERENDER);
+    sandbox.stub(resources.viewer_, 'getPrerenderMode')
+        .returns(PrerenderMode.DFS);
+
+    const bodyEl = env.win.document.createElement('body');
+    parent = createElementWithResource(0)[0];
+    bodyEl.appendChild(parent);
+    child1 = createElementWithResource(1)[0];
+    parent.appendChild(child1);
+    child2 = createElementWithResource(2)[0];
+    child1.appendChild(child2);
+    child3 = createElementWithResource(3)[0];
+    parent.appendChild(child3);
+    sinon.stub(resources.ampdoc, 'getBody').returns(bodyEl);
+  });
+
+  it('should build elements that allow prerender', () => {
+    resources.add(child2);
+    resources.upgraded(child2);
+    resources.add(child1);
+    resources.upgraded(child1);
+    resources.add(parent);
+    resources.upgraded(parent);
+
+    expect(parent.build).to.be.calledOnce;
+    expect(child1.build).to.be.calledOnce;
+    expect(child2.build).to.be.calledOnce;
+  });
+
+  it('should not build children of an element that disallows prerender', () => {
+    child1.prerenderAllowed = () => false;
+    resources.add(child3);
+    resources.upgraded(child3);
+    resources.add(child2);
+    resources.upgraded(child2);
+    resources.add(child1);
+    resources.upgraded(child1);
+    resources.add(parent);
+    resources.upgraded(parent);
+
+    expect(parent.build).to.be.calledOnce;
+    expect(child1.build).to.have.not.been.called;
+    expect(child2.build).to.have.not.been.called;
+    expect(child3.build).to.be.calledOnce;
+  });
+
+  it('should build elements top to bottom', () => {
+    resources.add(child3);
+    resources.upgraded(child3);
+    resources.add(child2);
+    resources.upgraded(child2);
+    resources.add(child1);
+    resources.upgraded(child1);
+    resources.add(parent);
+    resources.upgraded(parent);
+
+    sinon.assert.callOrder(
+        parent.build, child1.build, child2.build, child3.build);
   });
 });

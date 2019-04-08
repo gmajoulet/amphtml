@@ -421,6 +421,7 @@ function createBaseCustomElementClass(win) {
       this.implementation_.firstAttachedCallback();
       this.dispatchCustomEventForTesting(AmpEvents.ATTACHED);
       this.getResources().upgraded(this);
+      this.signals_.signal(CommonSignals.UPGRADED);
     }
 
     /** @private */
@@ -455,6 +456,15 @@ function createBaseCustomElementClass(win) {
      */
     whenBuilt() {
       return this.signals_.whenSignal(CommonSignals.BUILT);
+    }
+
+    /**
+     * Returns the promise that's resolved when the element has been built. If
+     * the build fails, the resulting promise is rejected.
+     * @return {!Promise}
+     */
+    whenUpgradeCompleted() {
+      return this.signals_.whenSignal(CommonSignals.UPGRADED);
     }
 
     /**
