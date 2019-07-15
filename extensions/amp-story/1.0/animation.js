@@ -204,6 +204,7 @@ class AnimationRunner {
     return this.keyframes_.then(keyframes => ({
       keyframes,
       target: this.target_,
+      delay: `${this.delay_}ms`,
       duration: `${this.duration_}ms`,
       easing: this.easing_,
       fill: 'forwards',
@@ -247,10 +248,6 @@ class AnimationRunner {
       const startAfterId = /** @type {string} */ (this.animationDef_
         .startAfterId);
       promise = promise.then(() => this.sequence_.waitFor(startAfterId));
-    }
-
-    if (this.delay_) {
-      promise = promise.then(() => this.timer_.promise(this.delay_));
     }
 
     return promise;
