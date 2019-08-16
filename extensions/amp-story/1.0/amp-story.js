@@ -85,7 +85,6 @@ import {
   childNodes,
   closest,
   createElementWithAttributes,
-  escapeCssSelectorIdent,
   fullscreenEnter,
   fullscreenExit,
   isRTL,
@@ -2068,9 +2067,9 @@ export class AmpStory extends AMP.BaseElement {
    * @private
    */
   onFullscreenStateUpdate_(isFullscreen) {
-    isFullscreen ?
-      fullscreenEnter(this.element, {navigationUI: 'show'}) :
-      fullscreenExit(this.element);
+    isFullscreen
+      ? fullscreenEnter(this.element, {navigationUI: 'show'})
+      : fullscreenExit(this.element);
   }
 
   /**
