@@ -322,9 +322,18 @@ export class AnalyticsRoot {
       const isSelectAny = selector == '*';
       const isSelectRoot = selector == ':root';
       let {target} = event;
+
+      const shadowRoot = target.shadowRoot;
+      if (shadowRoot && event.composedPath) {
+        target = event.composedPath()[0];
+      }
+
       while (target) {
         // Target must be contained by this root.
-        if (!this.contains(target)) {
+        if (
+          (!shadowRoot && !this.contains(target)) ||
+          (shadowRoot && !shadowRoot.contains(target))
+        ) {
           break;
         }
         // `:scope` context must contain the target.
@@ -341,7 +350,6 @@ export class AnalyticsRoot {
           target = target.parentElement;
           continue;
         }
-
         // Check if the target matches the selector.
         if (
           isSelectAny ||
