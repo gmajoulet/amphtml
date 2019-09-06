@@ -233,6 +233,9 @@ export class AmpStoryPage extends AMP.BaseElement {
       100
     );
 
+    /** @private {boolean}  */
+    this.isAutoAdvance_ = null;
+
     /** @private {?LoadingSpinner} */
     this.loadingSpinner_ = null;
 
@@ -325,6 +328,7 @@ export class AmpStoryPage extends AMP.BaseElement {
 
   /** @override */
   buildCallback() {
+    this.isAutoAdvance_ = this.element.hasAttribute('auto-advance-after');
     this.delegateVideoAutoplay();
     this.markMediaElementsWithPreload_();
     this.initializeMediaPool_();
@@ -969,6 +973,12 @@ export class AmpStoryPage extends AMP.BaseElement {
       // No-op.
       return Promise.resolve();
     } else {
+      // Ensures origin media has the loop attribute if needed to ensure the
+      // page either auto advances, or has the media looping. Adding it on the
+      // origin media to make sure it will be propagated to media pool elements.
+      this.isAutoAdvance_
+        ? mediaEl.removeAttribute('loop')
+        : mediaEl.setAttribute('loop', '');
       return mediaPool.register(
         /** @type {!./media-pool.DomElementDef} */ (mediaEl)
       );

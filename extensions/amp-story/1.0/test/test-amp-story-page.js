@@ -521,4 +521,46 @@ describes.realWin('amp-story-page', {amp: true}, env => {
       expect(startMeasuringStub).to.not.have.been.called;
     });
   });
+
+  it('should register media with loop attr if no auto-advanced-after', async () => {
+    sandbox
+      .stub(page.resources_, 'getResourceForElement')
+      .returns({isDisplayed: () => true});
+
+    const videoEl = win.document.createElement('video');
+    videoEl.setAttribute('src', 'https://example.com/video.mp3');
+    gridLayerEl.appendChild(videoEl);
+
+    page.buildCallback();
+    await page.layoutCallback();
+    const mediaPool = await page.mediaPoolPromise_;
+    const registerStub = sandbox.stub(mediaPool, 'register');
+    sandbox.stub(mediaPool, 'preload').rejects();
+    page.setState(PageState.PLAYING);
+    await Promise.resolve(); // Tick microtasks.
+    expect(registerStub).to.have.been.calledOnce;
+    expect(registerStub.firstCall.args[0]).to.have.attribute('loop');
+  });
+
+  it('should register media without loop attr if auto-advanced-after', async () => {
+    sandbox
+      .stub(page.resources_, 'getResourceForElement')
+      .returns({isDisplayed: () => true});
+    element.setAttribute('auto-advance-after', 'foo');
+
+    const videoEl = win.document.createElement('video');
+    videoEl.setAttribute('src', 'https://example.com/video.mp3');
+    videoEl.setAttribute('loop', '');
+    gridLayerEl.appendChild(videoEl);
+
+    page.buildCallback();
+    await page.layoutCallback();
+    const mediaPool = await page.mediaPoolPromise_;
+    const registerStub = sandbox.stub(mediaPool, 'register');
+    sandbox.stub(mediaPool, 'preload').rejects();
+    page.setState(PageState.PLAYING);
+    await Promise.resolve(); // Tick microtasks.
+    expect(registerStub).to.have.been.calledOnce;
+    expect(registerStub.firstCall.args[0]).to.not.have.attribute('loop');
+  });
 });
