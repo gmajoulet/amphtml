@@ -295,6 +295,9 @@ export class AmpStoryPage extends AMP.BaseElement {
 
     /** @private {?string} A textual description of the content of the page. */
     this.description_ = null;
+
+    /** @private {!VideoJsCamera} */
+    this.cameraPromise_ = this.whenCamera_();
   }
 
   /**
@@ -463,6 +466,10 @@ export class AmpStoryPage extends AMP.BaseElement {
     this.registerAllMedia_();
 
     if (this.isActive()) {
+      this.cameraPromise_.then(camera => {
+        console.log(camera);
+        camera.position.set(0, 0.25, 0);
+      });
       this.advancement_.start();
       this.maybeStartAnimations();
       this.checkPageHasAudio_();
@@ -477,8 +484,69 @@ export class AmpStoryPage extends AMP.BaseElement {
     this.reportDevModeErrors_();
   }
 
+  /**
+   * @param {!Element} videoJsEl
+   * @return {!Promise<!VideoJsPlayer>}
+   * @private
+   */
+  getVideoJsPlayer_(videoJsEl) {
+    if (!videoJsEl) {
+      return Promise.reject();
+    }
+
+    return this.timer_
+      .poll(100, () => !!videoJsEl.player)
+      .then(() => videoJsEl.player);
+  }
+
+  /**
+   * @param {!VideoJsPlayer} player
+   * @return {!Promise<!VideoJsCamera>}
+   * @private
+   */
+  getVideoJsCamera_(player) {
+    if (!player) {
+      return Promise.reject();
+    }
+
+    return this.timer_
+      .poll(100, () => !!player.vr().camera)
+      .then(() => player.vr().camera);
+  }
+
+  /**
+   * @return {!Promise<!VideoJsCamera>}
+   * @private
+   */
+  whenCamera_() {
+    const videoJsEl = this.element.querySelector('.video-js');
+    return this.getVideoJsPlayer_(videoJsEl).then(player =>
+      this.getVideoJsCamera_(player)
+    );
+  }
+
   /** @override */
   layoutCallback() {
+    const badgeEl = this.element.querySelector('.shopping-badge');
+    if (badgeEl) {
+      badgeEl.addEventListener(
+        'click',
+        () => {
+          const dot = this.element.querySelectorAll('.shopping-dot')[1];
+          const box = this.element.getLayoutBox();
+          dot.dispatchEvent(
+            new MouseEvent('click', {
+              bubbles: true,
+              cancelable: true,
+              clientX: box.width * 0.5 + 9,
+              clientY: box.height * 0.5,
+            })
+          );
+        },
+        true /** useCapture */
+      );
+    }
+
     upgradeBackgroundAudio(this.element);
     this.muteAllMedia();
     this.getViewport().onResize(
@@ -705,7 +773,11 @@ export class AmpStoryPage extends AMP.BaseElement {
 
     return includeHiddenMedia
       ? mediaSet
-      : mediaSet.filter(mediaEl => this.isMediaDisplayed_(mediaEl));
+      : mediaSet.filter(
+          mediaEl =>
+            mediaEl.hasAttribute('media-pool-exempt') ||
+            this.isMediaDisplayed_(mediaEl)
+        );
   }
 
   /**
@@ -778,7 +850,7 @@ export class AmpStoryPage extends AMP.BaseElement {
    * @private
    */
   pauseMedia_(mediaPool, mediaEl, rewindToBeginning) {
-    if (this.isBotUserAgent_) {
+    if (this.isBotUserAgent_ || mediaEl.hasAttribute('media-pool-exempt')) {
       mediaEl.pause();
       return Promise.resolve();
     } else {
@@ -808,7 +880,7 @@ export class AmpStoryPage extends AMP.BaseElement {
    * @private
    */
   playMedia_(mediaPool, mediaEl) {
-    if (this.isBotUserAgent_) {
+    if (this.isBotUserAgent_ || mediaEl.hasAttribute('media-pool-exempt')) {
       mediaEl.play();
       return Promise.resolve();
     } else {
@@ -868,7 +940,7 @@ export class AmpStoryPage extends AMP.BaseElement {
    * @private
    */
   preloadMedia_(mediaPool, mediaEl) {
-    if (this.isBotUserAgent_) {
+    if (this.isBotUserAgent_ || mediaEl.hasAttribute('media-pool-exempt')) {
       // No-op.
       return Promise.resolve();
     } else {
@@ -896,7 +968,7 @@ export class AmpStoryPage extends AMP.BaseElement {
    * @private
    */
   muteMedia_(mediaPool, mediaEl) {
-    if (this.isBotUserAgent_) {
+    if (this.isBotUserAgent_ || mediaEl.hasAttribute('media-pool-exempt')) {
       mediaEl.muted = true;
       mediaEl.setAttribute('muted', '');
       return Promise.resolve();
@@ -925,7 +997,7 @@ export class AmpStoryPage extends AMP.BaseElement {
    * @private
    */
   unmuteMedia_(mediaPool, mediaEl) {
-    if (this.isBotUserAgent_) {
+    if (this.isBotUserAgent_ || mediaEl.hasAttribute('media-pool-exempt')) {
       mediaEl.muted = false;
       mediaEl.removeAttribute('muted');
       if (mediaEl.tagName === 'AUDIO' && mediaEl.paused) {
@@ -976,7 +1048,7 @@ export class AmpStoryPage extends AMP.BaseElement {
    * @private
    */
   registerMedia_(mediaPool, mediaEl) {
-    if (this.isBotUserAgent_) {
+    if (this.isBotUserAgent_ || mediaEl.hasAttribute('media-pool-exempt')) {
       // No-op.
       return Promise.resolve();
     } else {
@@ -993,7 +1065,7 @@ export class AmpStoryPage extends AMP.BaseElement {
    */
   rewindAllMedia_() {
     return this.whenAllMediaElements_((mediaPool, mediaEl) => {
-      if (this.isBotUserAgent_) {
+      if (this.isBotUserAgent_ || mediaEl.hasAttribute('media-pool-exempt')) {
         mediaEl.currentTime = 0;
         return Promise.resolve();
       } else {
@@ -1588,18 +1660,17 @@ export class AmpStoryPage extends AMP.BaseElement {
    * @private
    */
   setPageDescription_() {
-    this.description_ = this.element.getAttribute('title');
-
-    if (this.isBotUserAgent_) {
-      this.renderPageDescription_();
-    } else {
-      // Strip the title attribute from the page on non-bot user agents, to
-      // prevent the browser tooltip.
-      if (!this.element.getAttribute('aria-label')) {
-        this.element.setAttribute('aria-label', this.description_);
-      }
-      this.element.removeAttribute('title');
-    }
+    // this.description_ = this.element.getAttribute('title');
+    // if (this.isBotUserAgent_ || mediaEl.hasAttribute('media-pool-exempt')) {
+    //   this.renderPageDescription_();
+    // } else {
+    //   // Strip the title attribute from the page on non-bot user agents, to
+    //   // prevent the browser tooltip.
+    //   if (!this.element.getAttribute('aria-label')) {
+    //     this.element.setAttribute('aria-label', this.description_);
+    //   }
+    //   this.element.removeAttribute('title');
+    // }
   }
 
   /**

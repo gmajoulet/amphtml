@@ -2405,26 +2405,20 @@ export class AmpStory extends AMP.BaseElement {
 
   /** @override */
   getMaxMediaElementCounts() {
-    let audioMediaElementsCount = this.element.querySelectorAll(
-      'amp-audio, [background-audio]'
-    ).length;
-    const videoMediaElementsCount = this.element.querySelectorAll('amp-video')
-      .length;
+    // let audioMediaElementsCount = this.element.querySelectorAll(
+    //   'amp-audio, [background-audio]'
+    // ).length;
+    // const videoMediaElementsCount = this.element.querySelectorAll('amp-video')
+    //   .length;
 
-    // The root element (amp-story) might have a background-audio as well.
-    if (this.element.hasAttribute('background-audio')) {
-      audioMediaElementsCount++;
-    }
+    // // The root element (amp-story) might have a background-audio as well.
+    // if (this.element.hasAttribute('background-audio')) {
+    //   audioMediaElementsCount++;
+    // }
 
     return {
-      [MediaType.AUDIO]: Math.min(
-        audioMediaElementsCount + MINIMUM_AD_MEDIA_ELEMENTS,
-        MAX_MEDIA_ELEMENT_COUNTS[MediaType.AUDIO]
-      ),
-      [MediaType.VIDEO]: Math.min(
-        videoMediaElementsCount + MINIMUM_AD_MEDIA_ELEMENTS,
-        MAX_MEDIA_ELEMENT_COUNTS[MediaType.VIDEO]
-      ),
+      [MediaType.AUDIO]: 0,
+      [MediaType.VIDEO]: 3,
     };
   }
 

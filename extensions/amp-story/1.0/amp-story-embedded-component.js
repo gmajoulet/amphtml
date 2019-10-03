@@ -897,7 +897,7 @@ export class AmpStoryEmbeddedComponent {
       '.i-amphtml-tooltip-text'
     );
 
-    existingTooltipText.textContent = tooltipText;
+    existingTooltipText.innerHTML = tooltipText;
   }
 
   /**

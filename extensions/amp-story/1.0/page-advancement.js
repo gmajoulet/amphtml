@@ -588,6 +588,7 @@ class ManualAdvancement extends AdvancementConfig {
 
     if (this.isHandledByEmbeddedComponent_(event, pageRect)) {
       event.preventDefault();
+      event.stopPropagation();
       const embedComponent = /** @type {InteractiveComponentDef} */ (this.storeService_.get(
         StateProperty.INTERACTIVE_COMPONENT_STATE
       ));
