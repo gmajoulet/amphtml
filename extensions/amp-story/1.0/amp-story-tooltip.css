@@ -111,6 +111,7 @@
   transition: transform 0.2s cubic-bezier(0.0, 0.0, 0.2, 1) !important;
 }
 
+
 .i-amphtml-story-tooltip.i-amphtml-tooltip-arrow-on-top {
   transform: translate3d(0, 16px, 0) !important;
 }
@@ -147,6 +148,10 @@
   height: 16px !important;
   margin: 22px 5px 0px !important;
   padding-bottom: 2px !important;
+}
+
+.i-amphtml-story-tooltip[href="https://www.youtube.com/channel/UC5SMcFSj_5ur-4iK9CginyQ"] .i-amphtml-tooltip-action-icon {
+  margin: -2px 5px 0px !important;
 }
 
 .i-amphtml-tooltip-action-icon-launch {

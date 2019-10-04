@@ -117,7 +117,7 @@
       }
 
       .shopping-dot-dress {
-        bottom: 50%;
+        bottom: 57%;
         left: 50%;
       }
 
@@ -216,8 +216,6 @@
         position: absolute;
         bottom: 24px;
         left: 24px;
-        background: rgba(0, 0, 0, 0.7);
-        border-radius: 100%;
       }
 
       .agenda-day {
@@ -239,21 +237,21 @@
 
       .agenda-step {
         position: relative;
-        height: 100px;
+        height: 90px;
         color: #000;
         font-family: 'domanicpregular', sans-serif;
-        font-size: 80px;
+        font-size: 70px;
       }
 
       .custom-cross-black {
         position: absolute;
-        bottom: -31px;
+        bottom: -27px;
       }
 
       .agenda-title {
         color: #000;
         font-family: 'Poppins', sans-serif;
-        font-size: 28px;
+        font-size: 24px;
         font-weight: 700;
         line-height: 1.3em;
       }
@@ -273,14 +271,15 @@
       }
 
       .review {
-        margin-bottom: 12px;
+        margin: -8px 0 8px;
         color: #000;
         font-family: 'domanicpregular', sans-serif;
-        font-size: 28px;
+        font-size: 24px;
       }
 
       .tv-image {
         margin: 0 auto 310px;
+        width: auto;
       }
 
       .social-networks {
@@ -346,13 +345,22 @@
 
       .blob {
         position: absolute;
-        bottom: -450px;
+        bottom: -490px;
         right: -45px;
         background-image: url(./assets/blob-white.svg);
         height: 600px;
         width: 600px;
         transform: scale(2.5) rotate(40deg);
         /*transform: translate(-280px, 490px) rotate(195deg) scale(1.2, 1);*/
+      }
+
+      #page4 .blob,
+      #page8 .blob {
+        bottom: -525px;
+      }
+
+      #page12 .blob {
+        bottom: -510px;
       }
 
       .small-blob {
@@ -452,9 +460,9 @@
 
   <body>
     <amp-story standalone poster-portrait-src="./assets/replay.jpg" publisher-logo-src="./assets/replay.jpg" publisher="AMP Stories" title="Attending NYFW with Aimee Song - Day 1">
-      <amp-story-page id="page1">
+      <amp-story-page id="page1" auto-advance-after="video1">
         <amp-story-grid-layer template="fill">
-            <amp-video poster="./assets/GettyImages-1027700750poster.jpg" autoplay layout="fill" loop>
+            <amp-video data-id="video1" poster="./assets/GettyImages-1027700750poster.jpg" autoplay layout="fill">
             <source src="./assets/P1/P1_cover.mp4" type="video/mp4" />
           </amp-video>
         </amp-story-grid-layer>
@@ -467,9 +475,9 @@
         </amp-story-grid-layer>
       </amp-story-page>
 
-      <amp-story-page id="page2">
+      <amp-story-page id="page2" auto-advance-after="video2">
         <amp-story-grid-layer template="fill">
-            <amp-video poster="./assets/GettyImages-1027700750poster.jpg" autoplay layout="fill" loop>
+            <amp-video data-id="video2" poster="./assets/GettyImages-1027700750poster.jpg" autoplay layout="fill">
             <source src="./assets/P2/P2_intro.mp4" type="video/mp4" />
           </amp-video>
         </amp-story-grid-layer>
@@ -484,7 +492,7 @@
           <div class="agenda">
             <div class="agenda-item">
               <p class="agenda-step">1<span class="custom-cross-black">&times;</span></p>
-              <p class="agenda-title">Runway Show</p>
+              <p class="agenda-title">Runway<br/>Show</p>
               <p class="agenda-host">Zimmermann</p>
             </div>
             <div class="agenda-item">
@@ -496,14 +504,14 @@
         </amp-story-grid-layer>
       </amp-story-page>
 
-      <amp-story-page id="page3">
+      <amp-story-page id="page3" auto-advance-after="video3">
         <amp-story-grid-layer template="fill">
-          <amp-video poster="./assets/GettyImages-1027700750poster.jpg" autoplay layout="fill" loop>
+          <amp-video data-id="video3" poster="./assets/GettyImages-1027700750poster.jpg" autoplay layout="fill">
             <source src="./assets/P3/P3_9am.mp4" type="video/mp4" />
           </amp-video>
         </amp-story-grid-layer>
         <amp-story-grid-layer template="vertical" class="bottom bottom-gradient center">
-          <p class="day">RUNWAY<br/>SHOW</p>
+          <p class="day">RUNWAY SHOW</p>
           <p class="brush brush-rose">9:00 am</p>
           <span class="cross cross-white"></span>
           <p class="title">Zimmermann</p>
@@ -511,10 +519,10 @@
         </amp-story-grid-layer>
       </amp-story-page>
 
-      <amp-story-page id="page4">
+      <amp-story-page id="page4" auto-advance-after="video4">
         <amp-story-grid-layer template="fill">
-            <amp-video poster="./assets/GettyImages-1027700750poster.jpg" autoplay layout="fill" loop>
-            <source src="./assets/P4/P4_review_vertical.mp4" type="video/mp4" />
+            <amp-video data-id="video4" poster="./assets/GettyImages-1027700750poster.jpg" autoplay layout="fill">
+            <source src="./assets/P4/P4_new_review_square.mp4" type="video/mp4" />
           </amp-video>
         </amp-story-grid-layer>
         <amp-story-grid-layer template="vertical" class="bottom">
@@ -536,10 +544,9 @@
         </amp-story-page-attachment>
       </amp-story-page>
 
-      <amp-story-page id="page5">
+      <amp-story-page id="page5" auto-advance-after="6s">
         <amp-story-grid-layer template="fill">
           <amp-img src="./assets/P5/P5_background.jpg" layout="fill"></amp-img>
-          <amp-img src="./assets/P5/P5_model.png" layout="fill"></amp-img>
         </amp-story-grid-layer>
         <amp-story-grid-layer template="vertical" class="bottom bottom-gradient-light center">
           <p class="shopping-title">AIMEE'S LOOK</p>
@@ -552,9 +559,9 @@
         </amp-story-grid-layer>
       </amp-story-page>
 
-      <amp-story-page id="page6">
+      <amp-story-page id="page6" auto-advance-after="video6">
         <amp-story-grid-layer template="fill">
-          <amp-video poster="./assets/GettyImages-1027700750poster.jpg" autoplay layout="fill" loop>
+          <amp-video data-id="video6" poster="./assets/GettyImages-1027700750poster.jpg" autoplay layout="fill">
             <source src="./assets/P6/P6_11am.mp4" type="video/mp4" />
           </amp-video>
         </amp-story-grid-layer>
@@ -567,9 +574,9 @@
         </amp-story-grid-layer>
       </amp-story-page>
 
-      <amp-story-page id="page7">
+      <amp-story-page id="page7" auto-advance-after="video7">
         <amp-story-grid-layer template="fill">
-          <amp-video poster="./assets/GettyImages-1027700750poster.jpg" autoplay layout="fill" loop>
+          <amp-video data-id="video7" poster="./assets/GettyImages-1027700750poster.jpg" autoplay layout="fill" loop>
             <source src="./assets/P7/P7_12pm.mp4" type="video/mp4" />
           </amp-video>
         </amp-story-grid-layer>
@@ -582,9 +589,13 @@
         </amp-story-grid-layer>
       </amp-story-page>
 
-      <amp-story-page id="page8">
+      <amp-story-page id="page8" auto-advance-after="6s">
         <amp-story-grid-layer template="fill">
-          <amp-img src="./assets/P8/food.jpg" layout="fill"></amp-img>
+          <div animate-in="zoom-in"
+            animate-in-duration="120s"
+            class="img-container">
+            <amp-img src="./assets/P8/food.jpg" animate-in="pan-left" animate-in-duration="30s" layout="fixed" height="616px" width="411px"></amp-img>
+          </div>
         </amp-story-grid-layer>
         <amp-story-grid-layer template="vertical" class="bottom">
           <div class="blob"></div>
@@ -598,7 +609,7 @@
         </amp-story-grid-layer>
       </amp-story-page>
 
-      <amp-story-page id="page9">
+      <amp-story-page id="page9" auto-advance-after="16s">
         <amp-story-grid-layer template="fill">
             <video muted width="1280" height="720" id="videojs-vr-player-1" class="video-js vjs-default-skin" playsinline style="pointer-events: none !important;" media-pool-exempt>
             <source src="./assets/P9/P9_2pm_360video_1080p.mp4" type="video/mp4">
@@ -610,24 +621,24 @@
           <span class="cross cross-white"></span>
           <p class="title">SMASHBOX</p>
           <p class="category">FALL ADDITION</p>
-          <amp-img layout="fixed" height="36px" width="36px" src="https://www.gstatic.com/images/icons/material/system_gm/1x/3d_rotation_white_36dp.png" class="badge-360"></amp-img>
+          <amp-img layout="fixed" height="48px" width="48px" src="./assets/360.png" class="badge-360"></amp-img>
         </amp-story-grid-layer>
       </amp-story-page>
 
-      <amp-story-page id="page10">
+      <amp-story-page id="page10" auto-advance-after="40s">
         <amp-story-grid-layer template="fill">
           <video muted width="1280" height="720" id="videojs-vr-player-2" class="video-js vjs-default-skin" playsinline style="pointer-events: none !important;" media-pool-exempt>
-            <source src="./assets/P10/P10-360video_1080p.mp4" type="video/mp4">
+            <source src="./assets/P10/P10-360video_new.mp4" type="video/mp4">
           </video>
         </amp-story-grid-layer>
         <amp-story-grid-layer template="vertical" class="bottom">
-          <amp-img layout="fixed" height="36px" width="36px" src="https://www.gstatic.com/images/icons/material/system_gm/1x/3d_rotation_white_36dp.png" class="badge-360"></amp-img>
+          <amp-img layout="fixed" height="48px" width="48px" src="./assets/360.png" class="badge-360"></amp-img>
         </amp-story-grid-layer>
       </amp-story-page>
 
-      <amp-story-page id="page11">
+      <amp-story-page id="page11" auto-advance-after="video11">
         <amp-story-grid-layer template="fill">
-          <amp-video poster="./assets/GettyImages-1027700750poster.jpg" autoplay layout="fill" loop>
+          <amp-video data-id="video11" poster="./assets/GettyImages-1027700750poster.jpg" autoplay layout="fill" loop>
             <source src="./assets/P11/P11_4pm.mp4" type="video/mp4" />
           </amp-video>
         </amp-story-grid-layer>
@@ -640,10 +651,10 @@
         </amp-story-grid-layer>
       </amp-story-page>
 
-      <amp-story-page id="page12">
+      <amp-story-page id="page12" auto-advance-after="video12">
         <amp-story-grid-layer template="fill">
-            <amp-video poster="./assets/GettyImages-1027700750poster.jpg" autoplay layout="fill" loop>
-            <source src="./assets/P12/P12_beautytip.mp4" type="video/mp4" />
+            <amp-video data-id="video12" poster="./assets/GettyImages-1027700750poster.jpg" autoplay layout="fill" loop>
+            <source src="./assets/P12/P12_new_beautytip_square.mp4" type="video/mp4" />
           </amp-video>
         </amp-story-grid-layer>
         <amp-story-grid-layer template="vertical" class="bottom">
@@ -661,9 +672,9 @@
         </amp-story-page-attachment>
       </amp-story-page>
 
-      <amp-story-page id="page13">
+      <amp-story-page id="page13" auto-advance-after="video13">
         <amp-story-grid-layer template="fill">
-          <amp-video poster="./assets/GettyImages-1027700750poster.jpg" autoplay layout="fill" loop>
+          <amp-video data-id="video13" poster="./assets/GettyImages-1027700750poster.jpg" autoplay layout="fill" loop>
             <source src="./assets/P13/P13_7pm.mp4" type="video/mp4" />
           </amp-video>
         </amp-story-grid-layer>
@@ -676,10 +687,10 @@
         </amp-story-grid-layer>
         <amp-story-page-attachment layout="nodisplay" data-cta-text="Full Day One Video" theme="dark">
           <amp-youtube width="480"
-                             height="270"
-                             layout=responsive
-                             data-videoid="rL_JQ_PpTSo" autoplay>
-                </amp-youtube>
+                       height="270"
+                       layout=responsive
+                       data-videoid="rL_JQ_PpTSo" autoplay>
+          </amp-youtube>
         </amp-story-page-attachment>
       </amp-story-page>
 
@@ -696,7 +707,9 @@
           <div class="small-blob-pink small-blob-pink-left"></div>
         </amp-story-grid-layer>
         <amp-story-grid-layer template="vertical" class="bottom">
-          <amp-img class="tv-image" src="./assets/P14/P13_tv.png" layout="fixed" height="410" width="267"></amp-img>
+          <a href="https://www.youtube.com/channel/UC5SMcFSj_5ur-4iK9CginyQ" data-tooltip-text="Song of Style YouTube" class="tv-image">
+            <amp-img src="./assets/P14/P13_tv.png" layout="fixed" height="410" width="267"></amp-img>
+          </a>
         </amp-story-grid-layer>
         <amp-story-grid-layer template="vertical" class="bottom center">
           <p class="day day-black">MORE ABOUT AIMEE</p>

@@ -539,7 +539,7 @@ export class AmpStoryPage extends AMP.BaseElement {
               bubbles: true,
               cancelable: true,
               clientX: box.width * 0.5 + 9,
-              clientY: box.height * 0.5,
+              clientY: box.height * 0.43,
             })
           );
         },
