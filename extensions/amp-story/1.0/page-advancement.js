@@ -852,6 +852,9 @@ class MediaBasedAdvancement extends AdvancementConfig {
     /** @private @const {!./amp-story-store-service.AmpStoryStoreService} */
     this.storeService_ = getStoreService(win);
 
+    /** @private {boolean} */
+    this.isVideoJs_ = false;
+
     this.elements_.forEach(el => {
       listen(el, VideoEvents.VISIBILITY, () => this.onVideoVisibilityChange_());
     });
@@ -929,6 +932,9 @@ class MediaBasedAdvancement extends AdvancementConfig {
       return this.element_.querySelector('.i-amphtml-story-background-audio');
     } else if (tagName === 'amp-audio') {
       return this.element_.querySelector('audio');
+    } else if (this.element_.classList.contains('video-js')) {
+      this.isVideoJs_ = true;
+      return this.element_.querySelector('video');
     }
 
     return null;
@@ -969,7 +975,11 @@ class MediaBasedAdvancement extends AdvancementConfig {
     }
 
     if (this.mediaElement_) {
-      this.startHtmlMediaElement_();
+      if (this.isVideoJs_) {
+        this.startVideoJsElement_();
+      } else {
+        this.startHtmlMediaElement_();
+      }
       return;
     }
 
@@ -1004,6 +1014,24 @@ class MediaBasedAdvancement extends AdvancementConfig {
       listenOnce(this.element_, VideoEvents.ENDED, () => this.onAdvance(), {
         capture: true,
       })
+    );
+
+    this.onProgressUpdate();
+
+    this.timer_.poll(POLL_INTERVAL_MS, () => {
+      this.onProgressUpdate();
+      return !this.isRunning();
+    });
+  }
+
+  /** @private */
+  startVideoJsElement_() {
+    const mediaElement = dev().assertElement(
+      this.mediaElement_,
+      'Media element was unspecified.'
+    );
+    this.unlistenFns_.push(
+      listenOnce(mediaElement, 'ended', () => this.onAdvance())
     );
 
     this.onProgressUpdate();

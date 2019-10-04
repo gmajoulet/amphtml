@@ -11,6 +11,8 @@
         src="https://cdn.ampproject.org/v0/amp-youtube-0.1.js"></script>
     <script async custom-element="amp-social-share"
         src="https://cdn.ampproject.org/v0/amp-social-share-0.1.js"></script>
+    <script async custom-element="amp-animation"
+        src="https://cdn.ampproject.org/v0/amp-animation-0.1.js"></script>
     <script async custom-element="amp-viewer-integration"
         src="https://cdn.ampproject.org/v0/amp-viewer-integration-0.1.js"></script>
     <script async custom-element="amp-iframe" src="https://cdn.ampproject.org/v0/amp-iframe-0.1.js"></script>
@@ -33,6 +35,10 @@
              url('./assets/domanicp-webfont.woff') format('woff');
         font-weight: normal;
         font-style: normal;
+      }
+
+      html, body {
+        font-size: 16px;
       }
 
       body {
@@ -216,6 +222,13 @@
         position: absolute;
         bottom: 24px;
         left: 24px;
+        background: rgba(0, 0, 0, 0.7);
+        border-radius: 100%;
+        transition: opacity 400ms ease;
+      }
+
+      .no-gyro .badge-360 {
+        opacity: 0;
       }
 
       .agenda-day {
@@ -428,6 +441,19 @@
       .i-amphtml-story-draggable-drawer-content amp-youtube {
         margin-top: 50%;
       }
+
+      .glass-pane {
+        bottom: 0;
+        left: 0;
+        position: absolute;
+        right: 0;
+        top: 0;
+      }
+
+      ::cue {
+        font-size: 20px;
+        line-height: 150%;
+      }
     </style>
     <script type="application/ld+json">
       {
@@ -479,6 +505,7 @@
         <amp-story-grid-layer template="fill">
             <amp-video data-id="video2" poster="./assets/P2/P2_intro.jpg" autoplay layout="fill">
             <source src="./assets/P2/P2_intro.mp4" type="video/mp4" />
+            <track default src="./assets/P2/P2.vtt" srclang="en">
           </amp-video>
         </amp-story-grid-layer>
         <amp-story-grid-layer template="vertical" class="bottom">
@@ -523,6 +550,7 @@
         <amp-story-grid-layer template="fill">
             <amp-video data-id="video4" poster="./assets/P4/P4_review_square.jpg" autoplay layout="fill">
             <source src="./assets/P4/P4_new_review_square.mp4" type="video/mp4" />
+            <track default src="./assets/P4/P4.vtt" srclang="en">
           </amp-video>
         </amp-story-grid-layer>
         <amp-story-grid-layer template="vertical" class="bottom">
@@ -576,8 +604,9 @@
 
       <amp-story-page id="page7" auto-advance-after="video7">
         <amp-story-grid-layer template="fill">
-          <amp-video data-id="video7" poster="./assets/P7/P7_12pm.jpg" autoplay layout="fill" loop>
+          <amp-video data-id="video7" poster="./assets/P7/P7_12pm.jpg" autoplay layout="fill">
             <source src="./assets/P7/P7_12pm.mp4" type="video/mp4" />
+            <track default src="./assets/P7/P7.vtt" srclang="en">
           </amp-video>
         </amp-story-grid-layer>
         <amp-story-grid-layer template="vertical" class="bottom bottom-gradient center">
@@ -609,7 +638,7 @@
         </amp-story-grid-layer>
       </amp-story-page>
 
-      <amp-story-page id="page9" auto-advance-after="16s">
+      <amp-story-page id="page9" auto-advance-after="videojs-vr-player-1">
         <amp-story-grid-layer template="fill">
             <video muted width="1280" height="720" id="videojs-vr-player-1" class="video-js vjs-default-skin" playsinline style="pointer-events: none !important;" media-pool-exempt>
             <source src="./assets/P9/P9_2pm_360video_1080p.mp4" type="video/mp4">
@@ -623,9 +652,12 @@
           <p class="category">FALL ADDITION</p>
           <amp-img layout="fixed" height="48px" width="48px" src="./assets/360.png" class="badge-360"></amp-img>
         </amp-story-grid-layer>
+        <amp-story-grid-layer template="fill">
+          <div class="glass-pane"></div>
+        </amp-story-grid-layer>
       </amp-story-page>
 
-      <amp-story-page id="page10" auto-advance-after="40s">
+      <amp-story-page id="page10" auto-advance-after="videojs-vr-player-2">
         <amp-story-grid-layer template="fill">
           <video muted width="1280" height="720" id="videojs-vr-player-2" class="video-js vjs-default-skin" playsinline style="pointer-events: none !important;" media-pool-exempt>
             <source src="./assets/P10/P10-360video_new.mp4" type="video/mp4">
@@ -634,12 +666,16 @@
         <amp-story-grid-layer template="vertical" class="bottom">
           <amp-img layout="fixed" height="48px" width="48px" src="./assets/360.png" class="badge-360"></amp-img>
         </amp-story-grid-layer>
+        <amp-story-grid-layer template="fill">
+          <div class="glass-pane"></div>
+        </amp-story-grid-layer>
       </amp-story-page>
 
       <amp-story-page id="page11" auto-advance-after="video11">
         <amp-story-grid-layer template="fill">
-          <amp-video data-id="video11" poster="./assets/P11/P11_4pm.jpg" autoplay layout="fill" loop>
+          <amp-video data-id="video11" poster="./assets/P11/P11_4pm.jpg" autoplay layout="fill">
             <source src="./assets/P11/P11_4pm.mp4" type="video/mp4" />
+            <track default src="./assets/P11/P11.vtt" srclang="en">
           </amp-video>
         </amp-story-grid-layer>
         <amp-story-grid-layer template="vertical" class="bottom bottom-gradient center">
@@ -653,8 +689,9 @@
 
       <amp-story-page id="page12" auto-advance-after="video12">
         <amp-story-grid-layer template="fill">
-            <amp-video data-id="video12" poster="./assets/P12/P12_beautytip_square.jpg" autoplay layout="fill" loop>
+            <amp-video data-id="video12" poster="./assets/P12/P12_beautytip_square.jpg" autoplay layout="fill">
             <source src="./assets/P12/P12_new_beautytip_square.mp4" type="video/mp4" />
+            <track default src="./assets/P12/P12.vtt" srclang="en">
           </amp-video>
         </amp-story-grid-layer>
         <amp-story-grid-layer template="vertical" class="bottom">
@@ -674,8 +711,9 @@
 
       <amp-story-page id="page13" auto-advance-after="video13">
         <amp-story-grid-layer template="fill">
-          <amp-video data-id="video13" poster="./assets/P13/P13_7pm.jpg" autoplay layout="fill" loop>
+          <amp-video data-id="video13" poster="./assets/P13/P13_7pm.jpg" autoplay layout="fill">
             <source src="./assets/P13/P13_7pm.mp4" type="video/mp4" />
+            <track default src="./assets/P13/P13.vtt" srclang="en">
           </amp-video>
         </amp-story-grid-layer>
         <amp-story-grid-layer template="vertical" class="bottom bottom-gradient center">
@@ -739,6 +777,15 @@
           projection: 'EAC',
         });
       }(window, window.videojs));
+
+      // Disable 360 badge if the device doesn't support gyroscope.
+      const id = setTimeout(() => {
+        document.body.classList.add('no-gyro');
+      }, 5000);
+
+      window.addEventListener('deviceorientation', event => {
+        clearTimeout(id);
+      });
     </script>
   </body>
 </html>
