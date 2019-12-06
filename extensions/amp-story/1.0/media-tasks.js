@@ -403,6 +403,7 @@ export class SwapIntoDomTask extends MediaTask {
       mediaEl,
       this.placeholderEl_
     );
+    mediaEl['__AMP_MEDIA_ELEMENT_DISTANCE__'] = undefined;
     return Promise.resolve();
   }
 }

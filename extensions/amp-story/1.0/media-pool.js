@@ -110,6 +110,11 @@ const ELEMENT_TASK_QUEUE_PROPERTY_NAME = '__AMP_MEDIA_ELEMENT_TASKS__';
 const MEDIA_ELEMENT_ORIGIN_PROPERTY_NAME = '__AMP_MEDIA_ELEMENT_ORIGIN__';
 
 /**
+ * @const {string}
+ */
+const MEDIA_ELEMENT_DISTANCE_PROPERTY_NAME = '__AMP_MEDIA_ELEMENT_DISTANCE__';
+
+/**
  * The name for a string attribute that represents the ID of a media element
  * that the element containing this attribute replaced.
  * @const {string}
@@ -331,9 +336,15 @@ export class MediaPool {
    * @private
    */
   compareMediaDistances_(mediaA, mediaB) {
-    const distanceA = this.distanceFn_(mediaA);
-    const distanceB = this.distanceFn_(mediaB);
+    const distanceA = this.getMediaDistance_(mediaA);
+    const distanceB = this.getMediaDistance_(mediaB);
     return distanceA < distanceB ? -1 : 1;
+  }
+
+  getMediaDistance_(media) {
+    return media[MEDIA_ELEMENT_DISTANCE_PROPERTY_NAME] !== undefined
+      ? media[MEDIA_ELEMENT_DISTANCE_PROPERTY_NAME]
+      : this.distanceFn_(media);
   }
 
   /**
@@ -444,13 +455,21 @@ export class MediaPool {
     // document.
     allocatedEls.sort((a, b) => this.compareMediaDistances_(a, b));
 
+    console.log(
+      'Plz deallocate a video for distance',
+      this.getMediaDistance_(opt_elToAllocate),
+      'current allocated distances',
+      allocatedEls.map(el => this.getMediaDistance_(el))
+    );
+
     // Do not deallocate any media elements if the element being loaded or
     // played is further than the farthest allocated element.
+    const furthestEl = allocatedEls[allocatedEls.length - 1];
     if (opt_elToAllocate) {
-      const furthestEl = allocatedEls[allocatedEls.length - 1];
       if (
         !furthestEl ||
-        this.distanceFn_(furthestEl) < this.distanceFn_(opt_elToAllocate)
+        this.getMediaDistance_(furthestEl) <
+          this.getMediaDistance_(opt_elToAllocate)
       ) {
         return null;
       }
@@ -459,6 +478,17 @@ export class MediaPool {
     // De-allocate a media element.
     const poolMediaEl = allocatedEls.pop();
     this.unallocated[mediaType].push(poolMediaEl);
+    console.log(
+      'Deallocating',
+      poolMediaEl.id,
+      'old distance',
+      this.getMediaDistance_(furthestEl),
+      'new distance',
+      this.getMediaDistance_(opt_elToAllocate)
+    );
+    poolMediaEl[MEDIA_ELEMENT_DISTANCE_PROPERTY_NAME] = this.getMediaDistance_(
+      opt_elToAllocate
+    );
     return poolMediaEl;
   }
 

@@ -203,7 +203,7 @@ const SIDEBAR_CLASS_NAME = 'i-amphtml-story-sidebar';
 /** @const {!Object<string, number>} */
 const MAX_MEDIA_ELEMENT_COUNTS = {
   [MediaType.AUDIO]: 4,
-  [MediaType.VIDEO]: 8,
+  [MediaType.VIDEO]: 3,
 };
 
 /** @type {string} */
@@ -291,6 +291,9 @@ export class AmpStory extends AMP.BaseElement {
 
     /** @private {?./amp-story-page.AmpStoryPage} */
     this.activePage_ = null;
+
+    /** @private {?Array} */
+    this.pagesByDistance_ = null;
 
     /** @private @const */
     this.desktopMedia_ = this.win.matchMedia(
@@ -1436,6 +1439,8 @@ export class AmpStory extends AMP.BaseElement {
       () => {
         oldPage && oldPage.element.removeAttribute('active');
 
+        this.pagesByDistance_ = this.getPagesByDistance_();
+
         if (
           this.storeService_.get(StateProperty.UI_STATE) ===
           UIType.DESKTOP_PANELS
@@ -2250,10 +2255,8 @@ export class AmpStory extends AMP.BaseElement {
       return;
     }
 
-    const pagesByDistance = this.getPagesByDistance_();
-
     this.mutateElement(() => {
-      pagesByDistance.forEach((pageIds, distance) => {
+      this.pagesByDistance_.forEach((pageIds, distance) => {
         pageIds.forEach(pageId => {
           const page = this.getPageById(pageId);
           page.setDistance(distance);
@@ -2447,7 +2450,11 @@ export class AmpStory extends AMP.BaseElement {
       return -1;
     }
 
-    return page.getDistance();
+    for (let i = 0; i < this.pagesByDistance_.length; i++) {
+      if (this.pagesByDistance_[i].includes(page.element.id)) {
+        return i;
+      }
+    }
   }
 
   /** @override */
