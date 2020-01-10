@@ -98,6 +98,13 @@
   overflow: hidden !important;
 }
 
+/*.i-amphtml-story-desktop-panels .i-amphtml-story-draggable-drawer {
+  height: calc(100% - 192px) !important;
+  width: calc(100% - 96px) !important;
+  border-radius: 8px !important;
+  overflow: hidden !important;
+}*/
+
 /** Bookend overrides. */
 
 .i-amphtml-story-draggable-drawer-bookend .i-amphtml-story-draggable-drawer-container,
