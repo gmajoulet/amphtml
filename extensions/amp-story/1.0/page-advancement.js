@@ -22,6 +22,7 @@ import {
   getStoreService,
 } from './amp-story-store-service';
 import {AdvancementMode} from './story-analytics';
+import {HistoryState, getHistoryState} from './utils';
 import {Services} from '../../../src/services';
 import {TAPPABLE_ARIA_ROLES} from '../../../src/service/action-impl';
 import {VideoEvents} from '../../../src/video-interface';
@@ -258,6 +259,9 @@ class ManualAdvancement extends AdvancementConfig {
     /** @private {?number} Last touchstart event's timestamp */
     this.touchstartTimestamp_ = null;
 
+    /** @private @const {!Window} */
+    this.win_ = win;
+
     this.startListening_();
 
     if (element.ownerDocument.defaultView) {
@@ -369,7 +373,8 @@ class ManualAdvancement extends AdvancementConfig {
       !this.storeService_.get(StateProperty.SYSTEM_UI_IS_VISIBLE_STATE) &&
       /** @type {InteractiveComponentDef} */ (this.storeService_.get(
         StateProperty.INTERACTIVE_COMPONENT_STATE
-      )).state !== EmbeddedComponentState.EXPANDED
+      )).state !== EmbeddedComponentState.EXPANDED &&
+      !getHistoryState(this.win_, HistoryState.ATTACHMENT_PAGE_ID)
     ) {
       this.storeService_.dispatch(Action.TOGGLE_SYSTEM_UI_IS_VISIBLE, true);
     }

@@ -1009,6 +1009,26 @@ amp-story-page .i-amphtml-story-page-open-attachment-label {
   white-space: nowrap !important;
 }
 
+amp-story-page .i-amphtml-story-page-attachment-expand {
+  position: relative !important;
+  width: 100% !important;
+  height: 100% !important;
+  background: #FFF !important;
+  z-index: 4 !important;
+  animation: open-3p-attachment 120ms cubic-bezier(0.0, 0.0, 0.2, 1) 2s backwards !important;
+}
+
+@keyframes open-3p-attachment {
+ 0% {
+  transform: scaleX(0);
+  opacity: 0.3;
+ }
+ 100% {
+  transform: scaleX(1);
+  opacity: 1;
+ }
+}
+
 amp-story-quiz {
   align-self: center;
   width: auto !important;

@@ -22,6 +22,7 @@ import {StoryAnalyticsEvent, getAnalyticsService} from './story-analytics';
 import {dev} from '../../../src/log';
 import {getState} from '../../../src/history';
 import {htmlFor} from '../../../src/static-template';
+import {openWindowDialog} from '../../../src/dom';
 import {toggle} from '../../../src/style';
 
 /** @const {string} */
@@ -133,6 +134,24 @@ export class AmpStoryPageAttachment extends DraggableDrawer {
    * @override
    */
   open(shouldAnimate = true) {
+    if (this.state_ === DrawerState.OPEN) {
+      return;
+    }
+    console.log('open');
+    // If has 3p URL, open new tab and return.
+    if (this.element.hasAttribute('href')) {
+      this.state_ = DrawerState.OPEN;
+      this.win.setTimeout(() => {
+        this.state_ = DrawerState.CLOSED;
+      }, 2000);
+      this.state_ = DrawerState.OPEN;
+
+      const platform = Services.platformFor(this.win);
+      const target = platform.isIos() ? '_top' : '_blank';
+      this.win.open(this.element.getAttribute('href'), target);
+      return;
+    }
+
     super.open(shouldAnimate);
 
     this.storeService_.dispatch(Action.TOGGLE_SYSTEM_UI_IS_VISIBLE, false);

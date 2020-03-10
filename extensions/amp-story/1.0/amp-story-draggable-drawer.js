@@ -31,7 +31,7 @@ import {listen} from '../../../src/event-helper';
 import {resetStyles, setImportantStyles, toggle} from '../../../src/style';
 
 /** @const {number} */
-const TOGGLE_THRESHOLD_PX = 50;
+const TOGGLE_THRESHOLD_PX = 100;
 
 /**
  * @enum {number}
@@ -367,22 +367,23 @@ export class DraggableDrawer extends AMP.BaseElement {
 
     gesture.event.preventDefault();
 
-    if (data.last === true) {
-      if (this.state_ === DrawerState.DRAGGING_TO_CLOSE) {
-        !swipingUp && deltaY > TOGGLE_THRESHOLD_PX
-          ? this.close_()
-          : this.open();
-      }
-
-      if (this.state_ === DrawerState.DRAGGING_TO_OPEN) {
-        swipingUp && -deltaY > TOGGLE_THRESHOLD_PX
-          ? this.open()
-          : this.close_();
-      }
+    if (data.last === true && this.state_ === DrawerState.DRAGGING_TO_CLOSE) {
+      !swipingUp && deltaY > TOGGLE_THRESHOLD_PX ? this.close_() : this.open();
       return;
     }
 
-    this.drag_(deltaY);
+    if (
+      this.state_ === DrawerState.CLOSED &&
+      swipingUp &&
+      -deltaY > TOGGLE_THRESHOLD_PX
+    ) {
+      this.open();
+      return;
+    }
+
+    if (!swipingUp) {
+      this.drag_(deltaY);
+    }
   }
 
   /**
